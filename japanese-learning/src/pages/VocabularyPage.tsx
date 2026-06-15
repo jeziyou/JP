@@ -1,9 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { vocabularyByLevel, type Word, type JLPTLevel } from '../data/vocabulary-data';
+import { searchJisho, searchJLPTVocab, fetchJLPTVocab } from '../services/api';
 
 const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
+type PageMode = 'flashcard' | 'list' | 'search';
+
 function FlashCard({ word, flipped, onFlip }: { word: Word; flipped: boolean; onFlip: () => void }) {
+  const hasExample = word.example && word.example.length > 0;
+
   return (
     <div
       onClick={onFlip}
@@ -11,7 +16,7 @@ function FlashCard({ word, flipped, onFlip }: { word: Word; flipped: boolean; on
       style={{ perspective: '1000px' }}
     >
       <div
-        className={`relative w-full h-full transition-transform duration-500`}
+        className="relative w-full h-full transition-transform duration-500"
         style={{
           transformStyle: 'preserve-3d',
           transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
@@ -38,17 +43,19 @@ function FlashCard({ word, flipped, onFlip }: { word: Word; flipped: boolean; on
           <span className="text-3xl font-serif mb-3">{word.meaning}</span>
           <span className="text-base text-white/70 font-sans mb-2">{word.reading}</span>
           <span className="text-2xl font-serif mb-6">{word.word}</span>
-          <div className="w-full border-t border-white/20 pt-4 mt-2">
-            <p className="text-sm text-white/80 font-sans leading-relaxed mb-2">
-              {word.example}
-            </p>
-            <p className="text-xs text-white/60 font-sans">
-              {word.exampleReading}
-            </p>
-            <p className="text-xs text-white/50 font-sans mt-1">
-              {word.exampleMeaning}
-            </p>
-          </div>
+          {hasExample && (
+            <div className="w-full border-t border-white/20 pt-4 mt-2">
+              <p className="text-sm text-white/80 font-sans leading-relaxed mb-2">
+                {word.example}
+              </p>
+              {word.exampleReading && (
+                <p className="text-xs text-white/60 font-sans">{word.exampleReading}</p>
+              )}
+              {word.exampleMeaning && (
+                <p className="text-xs text-white/50 font-sans mt-1">{word.exampleMeaning}</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -60,24 +67,105 @@ export default function VocabularyPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [mode, setMode] = useState<'flashcard' | 'list'>('flashcard');
+  const [pageMode, setPageMode] = useState<PageMode>('flashcard');
 
-  const words = useMemo(() => vocabularyByLevel[selectedLevel], [selectedLevel]);
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Word[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState('');
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // API-loaded words to augment static data
+  const [apiWords, setApiWords] = useState<Word[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [apiPage, setApiPage] = useState(0);
+
+  const staticWords = useMemo(() => vocabularyByLevel[selectedLevel], [selectedLevel]);
+  const words = pageMode === 'search' ? searchResults : [...staticWords, ...apiWords];
   const currentWord = words[currentIndex];
 
-  const goNext = () => {
+  const goNext = useCallback(() => {
     setFlipped(false);
-    setCurrentIndex((i) => (i + 1) % words.length);
-  };
+    setCurrentIndex((i) => (i + 1) % (words.length || 1));
+  }, [words.length]);
 
-  const goPrev = () => {
+  const goPrev = useCallback(() => {
     setFlipped(false);
-    setCurrentIndex((i) => (i - 1 + words.length) % words.length);
-  };
+    setCurrentIndex((i) => (i - 1 + (words.length || 1)) % (words.length || 1));
+  }, [words.length]);
 
-  const shuffle = () => {
+  const shuffle = useCallback(() => {
     setFlipped(false);
-    setCurrentIndex(Math.floor(Math.random() * words.length));
-  };
+    if (words.length > 0) {
+      setCurrentIndex(Math.floor(Math.random() * words.length));
+    }
+  }, [words.length]);
+
+  const handleSearch = useCallback(async (query: string) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setSearchResults([]);
+      setSearchError('');
+      return;
+    }
+
+    // Debounce: wait 400ms before firing
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(async () => {
+      setIsSearching(true);
+      setSearchError('');
+
+      try {
+        // Query both APIs in parallel
+        const [jishoResults, jlptResults] = await Promise.all([
+          searchJisho(query.trim()),
+          searchJLPTVocab(query.trim()),
+        ]);
+
+        // Merge, deduplicate by word text
+        const seen = new Set<string>();
+        const merged: Word[] = [];
+        for (const w of [...jishoResults, ...jlptResults]) {
+          if (!seen.has(w.word)) {
+            seen.add(w.word);
+            merged.push(w);
+          }
+        }
+
+        setSearchResults(merged);
+        setCurrentIndex(0);
+        setFlipped(false);
+
+        if (merged.length === 0) {
+          setSearchError('未找到相关单词，请尝试其他关键词');
+        }
+      } catch {
+        setSearchError('搜索失败，请检查网络连接后重试');
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+  }, []);
+
+  const loadMore = useCallback(async () => {
+    setIsLoadingMore(true);
+    const levelNum = LEVELS.indexOf(selectedLevel) + 1; // N5=5, N1=1
+    const nextPage = apiPage + 1;
+    const { words: newWords } = await fetchJLPTVocab(levelNum, nextPage * 50, 50);
+    setApiWords((prev) => [...prev, ...newWords]);
+    setApiPage(nextPage);
+    setIsLoadingMore(false);
+  }, [selectedLevel, apiPage]);
+
+  const handleLevelChange = useCallback((l: JLPTLevel) => {
+    setSelectedLevel(l);
+    setCurrentIndex(0);
+    setFlipped(false);
+    setApiWords([]);
+    setApiPage(0);
+  }, []);
 
   return (
     <div className="animate-slide-up">
@@ -86,46 +174,109 @@ export default function VocabularyPage() {
           単語暗記
         </h2>
         <p className="text-ink-light font-sans">
-          按JLPT级别分类，通过闪卡系统高效记忆单词
+          按JLPT级别分类或在线搜索，通过闪卡系统高效记忆单词
         </p>
       </div>
 
-      {/* Level & Mode Selector */}
-      <div className="flex flex-wrap items-center gap-3 mb-8">
-        <div className="flex gap-1">
-          {LEVELS.map((l) => (
-            <button
-              key={l}
-              onClick={() => { setSelectedLevel(l); setCurrentIndex(0); setFlipped(false); }}
-              className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
-                selectedLevel === l
-                  ? 'bg-gold text-white shadow-md'
-                  : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
-              }`}
-            >
-              {l}
-            </button>
-          ))}
-        </div>
-        <div className="ml-auto flex gap-2">
-          {(['flashcard', 'list'] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium font-sans transition-all duration-200 ${
-                mode === m
-                  ? 'bg-indigo-deep text-white'
-                  : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
-              }`}
-            >
-              {m === 'flashcard' ? '闪卡模式' : '列表模式'}
-            </button>
-          ))}
-        </div>
+      {/* Page Mode Tabs */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => { setPageMode('flashcard'); setCurrentIndex(0); setFlipped(false); }}
+          className={`px-5 py-2.5 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
+            pageMode !== 'search'
+              ? 'bg-gold text-white shadow-md'
+              : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+          }`}
+        >
+          分级学习
+        </button>
+        <button
+          onClick={() => { setPageMode('search'); setCurrentIndex(0); setFlipped(false); }}
+          className={`px-5 py-2.5 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
+            pageMode === 'search'
+              ? 'bg-vermillion text-white shadow-md'
+              : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+          }`}
+        >
+          在线搜索
+        </button>
       </div>
 
+      {/* Search Bar */}
+      {pageMode === 'search' && (
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder="输入日语单词搜索（支持汉字、假名、罗马音）…"
+              className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-border bg-white text-ink font-sans text-sm placeholder:text-ink-muted focus:outline-none focus:border-vermillion/50 transition-colors"
+            />
+            {isSearching && (
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted text-sm">
+                搜索中…
+              </span>
+            )}
+          </div>
+          {searchError && (
+            <p className="text-sm text-vermillion mt-2 font-sans">{searchError}</p>
+          )}
+          {pageMode === 'search' && searchResults.length > 0 && (
+            <p className="text-xs text-ink-muted mt-2 font-sans">
+              找到 {searchResults.length} 个结果（数据来源：Jisho.org / JLPT Vocab API）
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Level & Mode Selector (only for static mode) */}
+      {pageMode !== 'search' && (
+        <div className="flex flex-wrap items-center gap-3 mb-8">
+          <div className="flex gap-1">
+            {LEVELS.map((l) => (
+              <button
+                key={l}
+                onClick={() => { handleLevelChange(l); }}
+                className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
+                  selectedLevel === l
+                    ? 'bg-gold text-white shadow-md'
+                    : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+          <div className="ml-auto flex gap-2">
+            {(['flashcard', 'list'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium font-sans transition-all duration-200 ${
+                  mode === m
+                    ? 'bg-indigo-deep text-white'
+                    : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                }`}
+              >
+                {m === 'flashcard' ? '闪卡模式' : '列表模式'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Empty state for search */}
+      {pageMode === 'search' && !isSearching && searchQuery && searchResults.length === 0 && !searchError && (
+        <div className="text-center py-16 text-ink-muted font-sans">
+          <p className="text-4xl mb-4">🔍</p>
+          <p>输入日语单词开始搜索</p>
+          <p className="text-xs mt-2">支持汉字、假名、罗马音搜索</p>
+        </div>
+      )}
+
       {/* Flashcard Mode */}
-      {mode === 'flashcard' && currentWord && (
+      {((pageMode !== 'search' && mode === 'flashcard') || (pageMode === 'search')) && currentWord && (
         <div className="flex flex-col items-center">
           <FlashCard
             word={currentWord}
@@ -160,7 +311,7 @@ export default function VocabularyPage() {
       )}
 
       {/* List Mode */}
-      {mode === 'list' && (
+      {pageMode !== 'search' && mode === 'list' && (
         <div className="space-y-3">
           {words.map((word) => (
             <div
@@ -183,16 +334,27 @@ export default function VocabularyPage() {
                   {word.meaning}
                 </span>
               </div>
-              <div className="mt-3 pt-3 border-t border-border">
-                <p className="text-sm text-ink-light font-sans">
-                  {word.example}
-                </p>
-                <p className="text-xs text-ink-muted font-sans mt-1">
-                  {word.exampleReading} — {word.exampleMeaning}
-                </p>
-              </div>
+              {word.example && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-sm text-ink-light font-sans">
+                    {word.example}
+                  </p>
+                  <p className="text-xs text-ink-muted font-sans mt-1">
+                    {word.exampleReading}{word.exampleMeaning ? ` — ${word.exampleMeaning}` : ''}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
+          <div className="flex justify-center pt-4">
+            <button
+              onClick={loadMore}
+              disabled={isLoadingMore}
+              className="px-6 py-3 rounded-xl bg-indigo-deep text-white text-sm font-bold font-sans hover:bg-indigo-mid transition-colors disabled:opacity-50"
+            >
+              {isLoadingMore ? '加载中…' : `加载更多${selectedLevel}词汇（来自在线API）`}
+            </button>
+          </div>
         </div>
       )}
     </div>
