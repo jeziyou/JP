@@ -65,9 +65,11 @@ function jishoToWord(item: JishoDataItem, index: number): Word {
   };
 }
 
-/** Search Japanese words via Jisho API */
+/** Search Japanese words via Jisho API (proxied through Vite dev server) */
 export async function searchJisho(query: string): Promise<Word[]> {
-  const url = `https://jisho.org/api/v1/search/words?keyword=${encodeURIComponent(query)}`;
+  // Base64-encode the keyword to avoid preview proxy rejecting URL-encoded Japanese
+  const encoded = btoa(unescape(encodeURIComponent(query)));
+  const url = `/api/jisho-search?q=${encoded}`;
   const res = await fetch(url);
 
   if (!res.ok) {
