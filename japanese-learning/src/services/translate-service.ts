@@ -92,33 +92,19 @@ async function tryLibreTranslate(text: string): Promise<string | null> {
  * @returns true if it's a placeholder, false if it's actual translation
  */
 export function isPlaceholderTranslation(translation: string): boolean {
-  // Placeholders contain patterns like "本文包含了以下重点词汇" or "请查阅下方词汇表"
   if (!translation) return true;
   
-  // Check for placeholder patterns
+  // Placeholders contain patterns like "本文包含了以下重点词汇" or "请查阅下方词汇表"
   const placeholderPatterns = [
     '本文包含了以下重点词汇',
-    '请对照日语原文',
     '请查阅下方词汇表',
     '重点词汇及其中文释义',
   ];
   
-  // If it contains placeholder patterns AND no substantial Chinese content
+  // If it contains any placeholder pattern, treat it as placeholder
   for (const pattern of placeholderPatterns) {
     if (translation.includes(pattern)) {
-      // Check if it has actual translation content (more than just vocabulary list)
-      // Vocabulary list format: "词汇(释义)、词汇(释义)..."
-      const vocabPattern = /[\u3040-\u309f\u30a0-\u30ff]+\([\u4e00-\u9faf]+\)/g;
-      const vocabMatches = translation.match(vocabPattern);
-      
-      // If it's mostly vocabulary list, it's a placeholder
-      if (vocabMatches && vocabMatches.length >= 3) {
-        // Check if there's actual sentence translation
-        const withoutVocab = translation.replace(vocabPattern, '').replace(/、/g, '').trim();
-        if (withoutVocab.length < 30) {
-          return true; // It's just a vocabulary list placeholder
-        }
-      }
+      return true;
     }
   }
   
