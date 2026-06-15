@@ -72,13 +72,13 @@ export default function ReadingPage() {
               </h3>
               <button
                 onClick={handleRandom}
-                className="shrink-0 px-3 py-1.5 rounded-lg bg-gold-soft text-gold text-xs font-bold font-sans hover:bg-gold hover:text-white transition-colors"
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-gold-soft text-gold-dark text-xs font-bold font-sans hover:bg-gold hover:text-white transition-colors"
               >
                 随机一篇
               </button>
             </div>
             <div className="flex items-center gap-3 mb-6">
-              <span className="px-2 py-0.5 bg-indigo-soft/10 text-indigo-mid text-xs rounded font-sans">
+              <span className="px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
                 {selectedArticle.source}
               </span>
               <span className="text-xs text-ink-muted font-sans">
@@ -101,7 +101,7 @@ export default function ReadingPage() {
             <div className="border-t border-border pt-4">
               <button
                 onClick={() => setShowTranslation(!showTranslation)}
-                className="flex items-center gap-2 text-sm font-sans text-indigo-mid hover:text-indigo-deep transition-colors"
+                className="flex items-center gap-2 text-sm font-sans text-primary hover:text-primary-light transition-colors"
               >
                 <span>{showTranslation ? '隐藏译文' : '显示译文'}</span>
                 <span
@@ -161,7 +161,7 @@ export default function ReadingPage() {
             <div className="flex gap-2">
               <button
                 onClick={handleRefresh}
-                className="px-4 py-2 rounded-lg bg-indigo-deep text-white text-xs font-bold font-sans hover:bg-indigo-mid transition-colors"
+                className="px-4 py-2 rounded-lg bg-gold text-white text-xs font-bold font-sans hover:bg-gold-dark transition-colors"
               >
                 換一批
               </button>
@@ -181,15 +181,15 @@ export default function ReadingPage() {
               <button
                 key={article.id}
                 onClick={() => handleArticleClick(article)}
-                className="w-full text-left bg-white rounded-xl border border-border p-5 hover:shadow-md hover:border-indigo-soft/30 transition-all duration-200 group"
+                className="w-full text-left bg-white rounded-xl border border-border p-5 hover:shadow-md hover:border-primary-soft/30 transition-all duration-200 group"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-ink font-serif group-hover:text-indigo-deep transition-colors">
+                    <h3 className="text-lg font-bold text-ink font-serif group-hover:text-primary transition-colors">
                       {article.title}
                     </h3>
                     <div className="flex items-center gap-3 mt-2">
-                      <span className="px-2 py-0.5 bg-indigo-soft/10 text-indigo-mid text-xs rounded font-sans">
+                      <span className="px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
                         {article.source}
                       </span>
                       <span className="text-xs text-ink-muted font-sans">

@@ -7,8 +7,8 @@ const modules = [
     subtitle: 'Kana Chart',
     desc: '平仮名と片仮名の読み方と書き方を学びましょう',
     descCn: '学习平假名和片假名的读法和写法',
-    color: 'bg-vermillion-soft border-vermillion/20',
-    accent: 'text-vermillion',
+    color: 'bg-accent-soft border-accent/20',
+    accent: 'text-accent',
     icon: 'あ',
   },
   {
@@ -37,8 +37,8 @@ const modules = [
     subtitle: 'Reading',
     desc: '天声人語や朝日新聞の記事で読解力を鍛えましょう',
     descCn: '通过天声人语和朝日新闻文章锻炼阅读能力',
-    color: 'bg-indigo-soft/10 border-indigo-soft/20',
-    accent: 'text-indigo-mid',
+    color: 'bg-primary-soft border-primary/20',
+    accent: 'text-primary',
     icon: '読',
   },
 ];

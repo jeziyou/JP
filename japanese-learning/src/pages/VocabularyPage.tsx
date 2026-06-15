@@ -61,22 +61,22 @@ function FlashCard({ word, flipped, onFlip }: { word: Word; flipped: boolean; on
 
         {/* Back */}
         <div
-          className="absolute inset-0 bg-indigo-deep rounded-2xl border-2 border-indigo-mid flex flex-col items-center justify-center p-6 text-white shadow-lg"
+          className="absolute inset-0 bg-primary rounded-2xl border-2 border-primary-light flex flex-col items-center justify-center p-6 text-white shadow-lg"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
-          <span className="text-3xl font-serif mb-3">{word.meaning}</span>
-          <span className="text-base text-white/70 font-sans mb-2">{word.reading}</span>
-          <span className="text-2xl font-serif mb-6">{word.word}</span>
+          <span className="text-3xl font-serif mb-3 text-white">{word.meaning}</span>
+          <span className="text-base text-white/80 font-sans mb-2">{word.reading}</span>
+          <span className="text-2xl font-serif mb-6 text-white">{word.word}</span>
           {hasExample && (
-            <div className="w-full border-t border-white/20 pt-4 mt-2">
-              <p className="text-sm text-white/80 font-sans leading-relaxed mb-2">
+            <div className="w-full border-t border-white/30 pt-4 mt-2">
+              <p className="text-sm text-white/90 font-sans leading-relaxed mb-2">
                 {word.example}
               </p>
               {word.exampleReading && (
-                <p className="text-xs text-white/60 font-sans">{word.exampleReading}</p>
+                <p className="text-xs text-white/70 font-sans">{word.exampleReading}</p>
               )}
               {word.exampleMeaning && (
-                <p className="text-xs text-white/50 font-sans mt-1">{word.exampleMeaning}</p>
+                <p className="text-xs text-white/60 font-sans mt-1">{word.exampleMeaning}</p>
               )}
             </div>
           )}
@@ -217,8 +217,8 @@ export default function VocabularyPage() {
           onClick={() => { setPageMode('flashcard'); setCurrentIndex(0); setFlipped(false); }}
           className={`px-5 py-2.5 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
             pageMode !== 'search'
-              ? 'bg-gold text-ink shadow-md'
-              : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+              ? 'bg-gold text-white shadow-md'
+              : 'bg-white border border-border text-ink hover:bg-paper-dark'
           }`}
         >
           分级学习
@@ -227,8 +227,8 @@ export default function VocabularyPage() {
           onClick={() => { setPageMode('search'); setCurrentIndex(0); setFlipped(false); }}
           className={`px-5 py-2.5 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
             pageMode === 'search'
-              ? 'bg-vermillion text-white shadow-md'
-              : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+              ? 'bg-accent text-white shadow-md'
+              : 'bg-white border border-border text-ink hover:bg-paper-dark'
           }`}
         >
           在线搜索
@@ -274,8 +274,8 @@ export default function VocabularyPage() {
                   onClick={() => { handleLevelChange(l); }}
                   className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
                     selectedLevel === l
-                      ? 'bg-gold text-ink shadow-md'
-                      : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'bg-white border border-border text-ink hover:bg-paper-dark'
                   }`}
                 >
                   {l}
@@ -289,8 +289,8 @@ export default function VocabularyPage() {
                   onClick={() => setMode(m)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium font-sans transition-all duration-200 ${
                     mode === m
-                      ? 'bg-indigo-deep text-white shadow-md'
-                      : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                      ? 'bg-success text-white shadow-md'
+                      : 'bg-white border border-border text-ink hover:bg-paper-dark'
                   }`}
                 >
                   {m === 'flashcard' ? '闪卡模式' : '列表模式'}
@@ -308,8 +308,8 @@ export default function VocabularyPage() {
                   onClick={() => { setTopicFilter(t); setCurrentIndex(0); setFlipped(false); setListVisible(LIST_PAGE_SIZE); }}
                   className={`px-2.5 py-1 rounded-md text-xs font-sans transition-all duration-200 ${
                     topicFilter === t
-                      ? 'bg-indigo-deep text-white shadow-sm'
-                      : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-white border border-border text-ink hover:bg-paper-dark'
                   }`}
                 >
                   {t === 'all' ? '全部' : (TOPIC_LABELS[t] || t)}
@@ -359,7 +359,7 @@ export default function VocabularyPage() {
             </button>
             <button
               onClick={shuffle}
-              className="px-4 py-2 rounded-lg bg-paper-dark border border-border text-sm text-ink-light font-sans hover:bg-stone-light transition-colors"
+              className="px-4 py-2 rounded-lg bg-paper-dark border border-border text-sm text-ink-light font-sans hover:bg-paper-light transition-colors"
             >
               随机
             </button>
@@ -387,7 +387,7 @@ export default function VocabularyPage() {
                     {word.partOfSpeech}
                   </span>
                   {word.topic && (
-                    <span className="ml-1 px-2 py-0.5 bg-indigo-soft/50 text-indigo-deep text-xs rounded font-sans">
+                    <span className="ml-1 px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
                       {word.topic}
                     </span>
                   )}
@@ -413,7 +413,7 @@ export default function VocabularyPage() {
             {listVisible < words.length && (
               <button
                 onClick={() => setListVisible((p) => p + LIST_PAGE_SIZE)}
-                className="px-6 py-3 rounded-xl bg-indigo-deep text-white text-sm font-bold font-sans hover:bg-indigo-mid transition-colors"
+                className="px-6 py-3 rounded-xl bg-primary text-white text-sm font-bold font-sans hover:bg-primary-light transition-colors"
               >
                 显示更多（{listVisible} / {words.length}）
               </button>

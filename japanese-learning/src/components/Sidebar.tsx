@@ -12,8 +12,8 @@ export default function Sidebar() {
   return (
     <aside className="w-64 h-screen sticky top-0 flex flex-col bg-white border-r border-border">
       <div className="p-6 border-b border-border">
-        <h1 className="text-xl font-bold text-indigo-deep tracking-tight">
-          <span className="text-vermillion">日</span>本語学習
+        <h1 className="text-xl font-bold text-primary tracking-tight">
+          <span className="text-accent">日</span>本語学習
         </h1>
         <p className="text-xs text-ink-muted mt-1 font-sans">
           Japanese Learning Tool
@@ -29,7 +29,7 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-indigo-deep text-white shadow-sm'
+                  ? 'bg-primary text-white shadow-sm'
                   : 'text-ink-light hover:bg-paper-dark hover:text-ink'
               }`
             }
@@ -48,7 +48,7 @@ export default function Sidebar() {
       <div className="p-4 border-t border-border">
         <div className="bg-paper-dark rounded-lg p-4 text-center">
           <p className="text-xs text-ink-muted mb-2 font-sans">今日の一言</p>
-          <p className="text-base font-serif text-indigo-deep font-medium">
+          <p className="text-base font-serif text-primary font-medium">
             継続は力なり
           </p>
           <p className="text-xs text-ink-muted mt-1 font-sans">

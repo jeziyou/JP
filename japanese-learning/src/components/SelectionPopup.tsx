@@ -100,7 +100,7 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
       {/* Close button */}
       <button
         onClick={dismiss}
-        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-paper-dark text-ink-muted text-xs hover:bg-stone-light transition-colors flex items-center justify-center"
+        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-paper-dark text-ink-muted text-xs hover:bg-paper-light transition-colors flex items-center justify-center"
       >
         ✕
       </button>

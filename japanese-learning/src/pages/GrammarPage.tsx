@@ -35,8 +35,8 @@ export default function GrammarPage() {
               onClick={() => { setSelectedLevel(l); setExpandedId(null); }}
               className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
                 selectedLevel === l
-                  ? 'bg-bamboo text-white shadow-md'
-                  : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                  ? 'bg-success text-white shadow-md'
+                  : 'bg-white border border-border text-ink hover:bg-paper-dark'
               }`}
             >
               {l}
@@ -61,10 +61,10 @@ export default function GrammarPage() {
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1">
-                  <span className="text-lg font-serif text-bamboo-dark font-bold">
+                  <span className="text-lg font-serif text-success font-bold">
                     {point.pattern}
                   </span>
-                  <span className="px-2 py-0.5 bg-bamboo-soft text-bamboo-dark text-xs rounded font-sans">
+                  <span className="px-2 py-0.5 bg-success-soft text-success text-xs rounded font-sans">
                     {point.meaning}
                   </span>
                 </div>

@@ -86,8 +86,8 @@ export default function KanaPage() {
             onClick={() => { setChartType(t); setSection('basic'); }}
             className={`px-6 py-3 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
               chartType === t
-                ? 'bg-vermillion text-white shadow-md'
-                : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                ? 'bg-primary text-white shadow-md'
+                : 'bg-white border border-border text-ink hover:bg-paper-dark'
             }`}
           >
             {t === 'hiragana' ? 'ひらがな 平假名' : 'カタカナ 片假名'}
@@ -103,8 +103,8 @@ export default function KanaPage() {
             onClick={() => setSection(s)}
             className={`px-5 py-2 rounded-lg text-sm font-medium font-sans transition-all duration-200 ${
               section === s
-                ? 'bg-indigo-deep text-white'
-                : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                ? 'bg-accent text-white shadow-md'
+                : 'bg-white border border-border text-ink hover:bg-paper-dark'
             }`}
           >
             {{ basic: '清音', dakuon: '濁音/半濁音', combo: '拗音' }[s]}
