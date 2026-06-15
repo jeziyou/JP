@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { searchJisho } from '../services/api';
-import type { Word } from '../data/vocabulary-data';
-import { buildMeaning, getChineseMeaning } from '../utils/translations';
+import { searchVocabulary, type JMDictWord } from '../utils/vocab-search';
+import { buildMeaning } from '../utils/translations';
 
 interface SelectionPopupProps {
   /** The container element to listen for selection events on */
@@ -12,7 +11,7 @@ interface PopupState {
   x: number;
   y: number;
   text: string;
-  results: Word[];
+  results: JMDictWord[];
   loading: boolean;
   error: string;
 }
@@ -51,26 +50,20 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
 
       setPopup({ x, y, text: query, results: [], loading: true, error: '' });
 
-      searchJisho(query)
-        .then((results) => {
-          // Add Chinese meaning to each result
-          const withChinese = results.map((w) => ({
-            ...w,
-            meaning: buildMeaning(w.word, w.meaning),
-          }));
-          setPopup((prev) =>
-            prev && prev.text === query
-              ? { ...prev, results: withChinese.slice(0, 5), loading: false }
-              : null,
-          );
-        })
-        .catch(() => {
-          setPopup((prev) =>
-            prev && prev.text === query
-              ? { ...prev, error: '查询失败，请重试', loading: false }
-              : null,
-          );
-        });
+      // Use local search instead of external API
+      const results = searchVocabulary(query, 5);
+      
+      // Add Chinese meaning to each result
+      const withChinese = results.map((w) => ({
+        ...w,
+        meaning: buildMeaning(w.word, w.meaning),
+      }));
+      
+      setPopup((prev) =>
+        prev && prev.text === query
+          ? { ...prev, results: withChinese, loading: false }
+          : null,
+      );
     }, 150);
   }, [enabled]);
 
@@ -131,7 +124,7 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
         <div className="space-y-2 mt-2">
           {popup.results.map((w) => (
             <div
-              key={w.id}
+              key={`${w.word}-${w.reading}`}
               className="p-2 bg-paper-dark rounded-lg border border-border"
             >
               <div className="flex items-center gap-2">

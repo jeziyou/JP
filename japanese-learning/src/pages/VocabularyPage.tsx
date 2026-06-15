@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { allVocabulary, vocabularyByLevel, vocabularyByCategory, CATEGORY_LABELS, type JMDictWord } from '../data/jmdict-db';
 import { searchVocabulary } from '../utils/vocab-search';
-import FuriganaText from '../components/FuriganaText';
 import { buildMeaning } from '../utils/translations';
 
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
