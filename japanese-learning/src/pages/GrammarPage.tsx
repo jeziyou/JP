@@ -1,14 +1,15 @@
 import { useState, useMemo } from 'react';
-import { grammarByLevel, type JLPTLevel } from '../data/grammar-data';
+import { grammarData, type GrammarEntry } from '../data/grammar-data';
 import FuriganaText from '../components/FuriganaText';
 
+type JLPTLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
 const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
 export default function GrammarPage() {
   const [selectedLevel, setSelectedLevel] = useState<JLPTLevel>('N5');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const points = useMemo(() => grammarByLevel[selectedLevel], [selectedLevel]);
+  const points = useMemo(() => grammarData[selectedLevel], [selectedLevel]);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -26,21 +27,23 @@ export default function GrammarPage() {
       </div>
 
       {/* Level Selector */}
-      <div className="flex gap-1 mb-8">
-        {LEVELS.map((l) => (
-          <button
-            key={l}
-            onClick={() => { setSelectedLevel(l); setExpandedId(null); }}
-            className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
-              selectedLevel === l
-                ? 'bg-bamboo text-white shadow-md'
-                : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
-            }`}
-          >
-            {l}
-          </button>
-        ))}
-        <span className="ml-auto text-sm text-ink-muted font-sans self-center">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="flex gap-1">
+          {LEVELS.map((l) => (
+            <button
+              key={l}
+              onClick={() => { setSelectedLevel(l); setExpandedId(null); }}
+              className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
+                selectedLevel === l
+                  ? 'bg-bamboo text-white shadow-md'
+                  : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+              }`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+        <span className="ml-auto text-sm text-ink-muted font-sans">
           共 {points.length} 个语法点
         </span>
       </div>
@@ -83,11 +86,6 @@ export default function GrammarPage() {
                 <p className="text-sm text-ink-light font-sans mb-4 leading-relaxed">
                   {point.explanation}
                 </p>
-                {point.note && (
-                  <p className="text-sm text-vermillion bg-vermillion-soft/50 rounded-lg p-3 mb-4 font-sans">
-                    注意：{point.note}
-                  </p>
-                )}
                 <div className="space-y-3">
                   {point.examples.map((ex, idx) => (
                     <div

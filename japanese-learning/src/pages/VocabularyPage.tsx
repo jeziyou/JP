@@ -1,9 +1,32 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
-import { vocabularyByLevel, type Word, type JLPTLevel } from '../data/vocabulary-data';
+import { vocabularyByLevel, type Word, type JLPTLevel, type WordCategory } from '../data/vocabulary-data';
 import { searchJisho, searchJLPTVocab } from '../services/api';
 import FuriganaText from '../components/FuriganaText';
 
 const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1'];
+
+const TOPIC_LABELS: Record<string, string> = {
+  '食べ物・料理': '🍽️ 食べ物・料理',
+  '身体・健康': '🏥 身体・健康',
+  'スポーツ': '⚽ スポーツ',
+  '音楽・芸術': '🎵 音楽・芸術',
+  'テクノロジー': '💻 テクノロジー',
+  '交通・移動': '🚃 交通・移動',
+  '自然・科学': '🔬 自然・科学',
+  'ビジネス・経済': '💼 ビジネス・経済',
+  '法律・政治': '⚖️ 法律・政治',
+  '言語・教育': '📚 言語・教育',
+  '宗教・文化': '⛩️ 宗教・文化',
+  '歴史': '📜 歴史',
+  '生活・日常': '🏠 生活・日常',
+  '娯楽': '🎮 娯楽',
+  'メディア': '📺 メディア',
+  '仕事': '🛠️ 仕事',
+  '場所': '📍 場所',
+  '感情・心理': '💭 感情・心理',
+  '思想': '🧠 思想',
+  '未分類': '📦 未分類',
+};
 
 type PageMode = 'flashcard' | 'list' | 'search';
 
@@ -69,6 +92,7 @@ export default function VocabularyPage() {
   const [flipped, setFlipped] = useState(false);
   const [mode, setMode] = useState<'flashcard' | 'list'>('flashcard');
   const [pageMode, setPageMode] = useState<PageMode>('flashcard');
+  const [topicFilter, setTopicFilter] = useState<string>('all');
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -82,7 +106,25 @@ export default function VocabularyPage() {
   const [listVisible, setListVisible] = useState(LIST_PAGE_SIZE);
 
   const staticWords = useMemo(() => vocabularyByLevel[selectedLevel], [selectedLevel]);
-  const words = pageMode === 'search' ? searchResults : staticWords;
+
+  // Extract available topics for current level
+  const availableTopics = useMemo(() => {
+    const topics = new Set<string>();
+    for (const w of staticWords) {
+      if (w.topic) topics.add(w.topic);
+    }
+    return ['all', ...Array.from(topics).sort()];
+  }, [staticWords]);
+
+  const filteredWords = useMemo(() => {
+    let base = pageMode === 'search' ? searchResults : staticWords;
+    if (pageMode !== 'search' && topicFilter !== 'all') {
+      base = base.filter((w) => w.topic === topicFilter || (!w.topic && topicFilter === '未分類'));
+    }
+    return base;
+  }, [pageMode, searchResults, staticWords, topicFilter]);
+
+  const words = filteredWords;
   const displayedWords = pageMode !== 'search' && mode === 'list' ? words.slice(0, listVisible) : words;
   const currentWord = words[currentIndex];
 
@@ -155,6 +197,7 @@ export default function VocabularyPage() {
     setCurrentIndex(0);
     setFlipped(false);
     setListVisible(LIST_PAGE_SIZE);
+    setTopicFilter('all');
   }, []);
 
   return (
@@ -222,37 +265,61 @@ export default function VocabularyPage() {
 
       {/* Level & Mode Selector (only for static mode) */}
       {pageMode !== 'search' && (
-        <div className="flex flex-wrap items-center gap-3 mb-8">
-          <div className="flex gap-1">
-            {LEVELS.map((l) => (
-              <button
-                key={l}
-                onClick={() => { handleLevelChange(l); }}
-                className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
-                  selectedLevel === l
-                    ? 'bg-gold text-white shadow-md'
-                    : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
-                }`}
-              >
-                {l}
-              </button>
-            ))}
+        <div className="space-y-3 mb-8">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex gap-1">
+              {LEVELS.map((l) => (
+                <button
+                  key={l}
+                  onClick={() => { handleLevelChange(l); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
+                    selectedLevel === l
+                      ? 'bg-gold text-white shadow-md'
+                      : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                  }`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+            <div className="ml-auto flex gap-2">
+              {(['flashcard', 'list'] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium font-sans transition-all duration-200 ${
+                    mode === m
+                      ? 'bg-indigo-deep text-white'
+                      : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                  }`}
+                >
+                  {m === 'flashcard' ? '闪卡模式' : '列表模式'}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="ml-auto flex gap-2">
-            {(['flashcard', 'list'] as const).map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium font-sans transition-all duration-200 ${
-                  mode === m
-                    ? 'bg-indigo-deep text-white'
-                    : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
-                }`}
-              >
-                {m === 'flashcard' ? '闪卡模式' : '列表模式'}
-              </button>
-            ))}
-          </div>
+          {/* Topic Filter */}
+          {availableTopics.length > 1 && (
+            <div className="flex flex-wrap gap-1 items-center">
+              <span className="text-xs text-ink-muted font-sans mr-2">分类：</span>
+              {availableTopics.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => { setTopicFilter(t); setCurrentIndex(0); setFlipped(false); setListVisible(LIST_PAGE_SIZE); }}
+                  className={`px-2.5 py-1 rounded-md text-xs font-sans transition-all duration-200 ${
+                    topicFilter === t
+                      ? 'bg-indigo-deep text-white shadow-sm'
+                      : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
+                  }`}
+                >
+                  {t === 'all' ? '全部' : (TOPIC_LABELS[t] || t)}
+                </button>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-ink-muted font-sans">
+            当前：{words.length} 个单词
+          </p>
         </div>
       )}
 
@@ -319,6 +386,11 @@ export default function VocabularyPage() {
                   <span className="ml-2 px-2 py-0.5 bg-gold-soft text-gold text-xs rounded font-sans">
                     {word.partOfSpeech}
                   </span>
+                  {word.topic && (
+                    <span className="ml-1 px-2 py-0.5 bg-indigo-soft/50 text-indigo-deep text-xs rounded font-sans">
+                      {word.topic}
+                    </span>
+                  )}
                 </div>
                 <span className="text-base font-bold text-ink font-sans">
                   {word.meaning}
