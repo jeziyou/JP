@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { vocabularyByLevel, vocabularyByCategory, type Word, type JLPTLevel, type TopicCategory } from '../data/vocabulary-data';
-import { searchJisho, searchJLPTVocab } from '../services/api';
+import { searchVocabulary, getVocabularyByLevel, getVocabularyByLevelAndCategory } from '../utils/vocab-search';
 import FuriganaText from '../components/FuriganaText';
 import { buildMeaning } from '../utils/translations';
 
@@ -159,43 +159,44 @@ export default function VocabularyPage() {
       return;
     }
 
-    // Debounce: wait 400ms before firing
+    // Debounce: wait 300ms before firing
     if (searchTimer.current) clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(async () => {
       setIsSearching(true);
       setSearchError('');
 
       try {
-        // Query both APIs in parallel
-        const [jishoResults, jlptResults] = await Promise.all([
-          searchJisho(query.trim()),
-          searchJLPTVocab(query.trim()),
-        ]);
+        // Local search using embedded JMdict database
+        const results = searchVocabulary(query.trim(), 100);
+        
+        // Convert to Word format
+        const converted: Word[] = results.map(r => ({
+          id: `search-${r.word}`,
+          word: r.word,
+          reading: r.reading,
+          meaning: r.meaning,
+          partOfSpeech: r.partOfSpeech || '名詞',
+          level: r.level || 'N5',
+          category: r.category || '未分類',
+          example: '',
+          exampleReading: '',
+          exampleMeaning: '',
+        }));
 
-        // Merge, deduplicate by word text
-        const seen = new Set<string>();
-        const merged: Word[] = [];
-        for (const w of [...jishoResults, ...jlptResults]) {
-          if (!seen.has(w.word)) {
-            seen.add(w.word);
-            merged.push(w);
-          }
-        }
-
-        setSearchResults(merged);
+        setSearchResults(converted);
         setCurrentIndex(0);
         setFlipped(false);
 
-        if (merged.length === 0) {
+        if (converted.length === 0) {
           setSearchError('未找到相关单词，请尝试其他关键词');
         }
       } catch {
-        setSearchError('搜索失败，请检查网络连接后重试');
+        setSearchError('搜索失败，请刷新页面后重试');
         setSearchResults([]);
       } finally {
         setIsSearching(false);
       }
-    }, 400);
+    }, 300);
   }, []);
 
   const handleLevelChange = useCallback((l: JLPTLevel) => {
@@ -249,8 +250,8 @@ export default function VocabularyPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder="输入日语单词搜索（支持汉字、假名、罗马音）…"
-              className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-border bg-white text-ink font-sans text-sm placeholder:text-ink-muted focus:outline-none focus:border-vermillion/50 transition-colors"
+              placeholder="输入日语单词搜索（汉字/假名/罗马音）…"
+              className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-border bg-white text-ink font-sans text-sm placeholder:text-ink-muted focus:outline-none focus:border-primary/50 transition-colors"
             />
             {isSearching && (
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted text-sm">
