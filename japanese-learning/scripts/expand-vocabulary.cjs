@@ -21,7 +21,49 @@ const raw = JSON.parse(fs.readFileSync(jmdictPath, 'utf-8'));
 const words = raw.words;
 console.log(`Loaded ${words.length} entries from JMdict`);
 
-// POS mapping
+// Word categories
+const WORD_CATEGORIES = [
+  '食べ物・料理', '身体・健康', 'スポーツ', '音楽・芸術',
+  'テクノロジー', '交通・移動', '自然・科学', 'ビジネス・経済',
+  '法律・政治', '言語・教育', '宗教・文化', '歴史',
+  '生活・日常', '娯楽', 'メディア', '仕事',
+  '場所', '感情・心理', '思想', '未分類',
+];
+
+// Category keywords for automatic categorization
+const categoryKeywords = {
+  '食べ物・料理': ['食', '飲', '料理', 'パン', '肉', '魚', '野菜', '果物', '米', '麺', '酒', '茶', 'コーヒー', 'チョコ'],
+  '身体・健康': ['体', '病', '医者', '薬', '健康', '病院', '手術', '治療', '予防', '歯', '目', '耳', '鼻', '口'],
+  'スポーツ': ['スポーツ', 'サッカー', '野球', 'テニス', 'ゴルフ', '泳ぐ', '走る', '選手', '試合', '優勝'],
+  '音楽・芸術': ['音楽', '絵', '美術', '映画', '演劇', 'コンサート', 'ピアノ', '歌', 'アート'],
+  'テクノロジー': ['コンピュータ', 'インターネット', 'スマホ', '電話', 'テレビ', 'データ', 'プログラム'],
+  '交通・移動': ['車', '電車', 'バス', '飛行機', '船', '駅', '空港', '運転', '運輸'],
+  '自然・科学': ['自然', '科学', '環境', '気候', '動物', '植物', '宇宙', '化学', '物理', '生物'],
+  'ビジネス・経済': ['会社', '経済', '市場', '株', '投資', '営業', '取引', '利益', '予算'],
+  '法律・政治': ['政治', '法律', '選挙', '政府', '国会', '裁判', '契約', '権利'],
+  '言語・教育': ['教育', '学校', '大学', '学生', '先生', '学習', '言語', '文法', '単語'],
+  '宗教・文化': ['宗教', '神社', '仏教', '文化', '伝統', '習慣', '祭り'],
+  '歴史': ['歴史', '時代', '戦争', '革命', '王朝', '発見'],
+  '生活・日常': ['生活', '家族', '家', '買い物', '掃除', '料理', '洗濯', '睡眠'],
+  '娯楽': ['ゲーム', '遊び', '旅行', '映画', '読書', '趣味', '休日'],
+  'メディア': ['新聞', '雑誌', 'ラジオ', 'ニュース', '報道', '情報'],
+  '仕事': ['仕事', '職業', '会社', '勤務', '退職', '昇進', '給料'],
+  '場所': ['場所', '公園', '図書館', '銀行', '郵便局', '病院', '店'],
+  '感情・心理': ['喜ぶ', '悲しむ', '怒る', '寂しい', '嬉しい', '安心', '心配', '後悔'],
+  '思想': ['考え', '哲学', '信念', '意見', '主張', '論理'],
+};
+
+function categorizeWord(word) {
+  for (const [category, keywords] of Object.entries(categoryKeywords)) {
+    for (const keyword of keywords) {
+      if (word.includes(keyword)) {
+        return category;
+      }
+    }
+  }
+  return '未分類';
+}
+
 const POS_MAP = {
   'n': '名詞', 'n-pr': '固有名詞', 'n-pref': '接頭辞', 'n-suf': '接尾辞',
   'adj-i': 'イ形容詞', 'adj-na': 'ナ形容詞', 'adj-no': 'ノ形容詞',
@@ -224,6 +266,9 @@ for (const entry of words) {
   const exampleReading = generateReading(example);
   const exampleMeaning = translateExample(example);
   
+  // Categorize word
+  const category = categorizeWord(word);
+  
   vocabEntries.push({
     id: `v-${String(vocabEntries.length).padStart(5, '0')}`,
     word,
@@ -231,6 +276,7 @@ for (const entry of words) {
     meaning,
     partOfSpeech: pos,
     level,
+    category,
     example,
     exampleReading,
     exampleMeaning,
@@ -252,6 +298,7 @@ const output = `export interface Word {
   meaning: string;
   partOfSpeech: string;
   level: string;
+  category: string;
   example: string;
   exampleReading: string;
   exampleMeaning: string;
@@ -260,12 +307,37 @@ const output = `export interface Word {
 export type JLPTLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
 export type WordCategory = 'all' | 'noun' | 'verb' | 'adjective' | 'adverb';
 
+export type TopicCategory = '食べ物・料理' | '身体・健康' | 'スポーツ' | '音楽・芸術' | 'テクノロジー' | '交通・移動' | '自然・科学' | 'ビジネス・経済' | '法律・政治' | '言語・教育' | '宗教・文化' | '歴史' | '生活・日常' | '娯楽' | 'メディア' | '仕事' | '場所' | '感情・心理' | '思想' | '未分類';
+
 export const vocabularyByLevel: Record<string, Word[]> = {
   N5: [],
   N4: [],
   N3: [],
   N2: [],
   N1: [],
+};
+
+export const vocabularyByCategory: Record<string, Word[]> = {
+  '食べ物・料理': [],
+  '身体・健康': [],
+  'スポーツ': [],
+  '音楽・芸術': [],
+  'テクノロジー': [],
+  '交通・移動': [],
+  '自然・科学': [],
+  'ビジネス・経済': [],
+  '法律・政治': [],
+  '言語・教育': [],
+  '宗教・文化': [],
+  '歴史': [],
+  '生活・日常': [],
+  '娯楽': [],
+  'メディア': [],
+  '仕事': [],
+  '場所': [],
+  '感情・心理': [],
+  '思想': [],
+  '未分類': [],
 };
 
 export const vocabulary: Word[] = [
@@ -276,6 +348,7 @@ ${vocabEntries.map(v => `  {
     meaning: '${escapeString(v.meaning)}',
     partOfSpeech: '${v.partOfSpeech}',
     level: '${v.level}',
+    category: '${v.category}',
     example: '${escapeString(v.example)}',
     exampleReading: '${escapeString(v.exampleReading)}',
     exampleMeaning: '${escapeString(v.exampleMeaning)}',
@@ -285,6 +358,11 @@ ${vocabEntries.map(v => `  {
 // Group by level
 for (const word of vocabulary) {
   vocabularyByLevel[word.level].push(word);
+}
+
+// Group by category
+for (const word of vocabulary) {
+  vocabularyByCategory[word.category].push(word);
 }
 `;
 

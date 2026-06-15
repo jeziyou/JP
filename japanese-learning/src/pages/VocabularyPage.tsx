@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
-import { vocabularyByLevel, type Word, type JLPTLevel, type WordCategory } from '../data/vocabulary-data';
+import { vocabularyByLevel, vocabularyByCategory, type Word, type JLPTLevel, type TopicCategory } from '../data/vocabulary-data';
 import { searchJisho, searchJLPTVocab } from '../services/api';
 import FuriganaText from '../components/FuriganaText';
 import { buildMeaning } from '../utils/translations';
@@ -93,7 +93,8 @@ export default function VocabularyPage() {
   const [flipped, setFlipped] = useState(false);
   const [mode, setMode] = useState<'flashcard' | 'list'>('flashcard');
   const [pageMode, setPageMode] = useState<PageMode>('flashcard');
-  const [topicFilter, setTopicFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [filterType, setFilterType] = useState<'level' | 'category'>('level');
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -106,24 +107,28 @@ export default function VocabularyPage() {
   const LIST_PAGE_SIZE = 15;
   const [listVisible, setListVisible] = useState(LIST_PAGE_SIZE);
 
-  const staticWords = useMemo(() => vocabularyByLevel[selectedLevel], [selectedLevel]);
-
-  // Extract available topics for current level
-  const availableTopics = useMemo(() => {
-    const topics = new Set<string>();
-    for (const w of staticWords) {
-      if (w.topic) topics.add(w.topic);
+  const staticWords = useMemo(() => {
+    if (filterType === 'level') {
+      return vocabularyByLevel[selectedLevel];
+    } else {
+      return categoryFilter === 'all' 
+        ? Object.values(vocabularyByCategory).flat()
+        : vocabularyByCategory[categoryFilter] || [];
     }
-    return ['all', ...Array.from(topics).sort()];
-  }, [staticWords]);
+  }, [selectedLevel, categoryFilter, filterType]);
+
+  // Extract available categories
+  const availableCategories = useMemo(() => {
+    return ['all', ...Object.keys(vocabularyByCategory).sort()];
+  }, []);
 
   const filteredWords = useMemo(() => {
     let base = pageMode === 'search' ? searchResults : staticWords;
-    if (pageMode !== 'search' && topicFilter !== 'all') {
-      base = base.filter((w) => w.topic === topicFilter || (!w.topic && topicFilter === '未分類'));
+    if (pageMode !== 'search' && filterType === 'level' && categoryFilter !== 'all') {
+      base = base.filter((w) => w.category === categoryFilter);
     }
     return base;
-  }, [pageMode, searchResults, staticWords, topicFilter]);
+  }, [pageMode, searchResults, staticWords, categoryFilter, filterType]);
 
   const words = filteredWords;
   const displayedWords = pageMode !== 'search' && mode === 'list' ? words.slice(0, listVisible) : words;
@@ -299,21 +304,71 @@ export default function VocabularyPage() {
               ))}
             </div>
           </div>
-          {/* Topic Filter */}
-          {availableTopics.length > 1 && (
+          {/* Filter Type Toggle */}
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={() => { setFilterType('level'); setCategoryFilter('all'); }}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium font-sans transition-all duration-200 ${
+                filterType === 'level'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-white border border-border text-ink hover:bg-paper-dark'
+              }`}
+            >
+              按级别
+            </button>
+            <button
+              onClick={() => { setFilterType('category'); setSelectedLevel('N5'); }}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium font-sans transition-all duration-200 ${
+                filterType === 'category'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-white border border-border text-ink hover:bg-paper-dark'
+              }`}
+            >
+              按分类
+            </button>
+          </div>
+          {/* Category Filter */}
+          {filterType === 'category' ? (
             <div className="flex flex-wrap gap-1 items-center">
               <span className="text-xs text-ink-muted font-sans mr-2">分类：</span>
-              {availableTopics.map((t) => (
+              {availableCategories.map((c) => (
                 <button
-                  key={t}
-                  onClick={() => { setTopicFilter(t); setCurrentIndex(0); setFlipped(false); setListVisible(LIST_PAGE_SIZE); }}
+                  key={c}
+                  onClick={() => { setCategoryFilter(c); setCurrentIndex(0); setFlipped(false); setListVisible(LIST_PAGE_SIZE); }}
                   className={`px-2.5 py-1 rounded-md text-xs font-sans transition-all duration-200 ${
-                    topicFilter === t
+                    categoryFilter === c
                       ? 'bg-primary text-white shadow-sm'
                       : 'bg-white border border-border text-ink hover:bg-paper-dark'
                   }`}
                 >
-                  {t === 'all' ? '全部' : (TOPIC_LABELS[t] || t)}
+                  {c === 'all' ? '全部' : (TOPIC_LABELS[c] || c)}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-1 items-center">
+              <span className="text-xs text-ink-muted font-sans mr-2">细分：</span>
+              <button
+                onClick={() => { setCategoryFilter('all'); setCurrentIndex(0); setFlipped(false); setListVisible(LIST_PAGE_SIZE); }}
+                className={`px-2.5 py-1 rounded-md text-xs font-sans transition-all duration-200 ${
+                  categoryFilter === 'all'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-white border border-border text-ink hover:bg-paper-dark'
+                }`}
+              >
+                全部
+              </button>
+              {Array.from(new Set(staticWords.map(w => w.category))).sort().map((c) => (
+                <button
+                  key={c}
+                  onClick={() => { setCategoryFilter(c); setCurrentIndex(0); setFlipped(false); setListVisible(LIST_PAGE_SIZE); }}
+                  className={`px-2.5 py-1 rounded-md text-xs font-sans transition-all duration-200 ${
+                    categoryFilter === c
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-white border border-border text-ink hover:bg-paper-dark'
+                  }`}
+                >
+                  {TOPIC_LABELS[c] || c}
                 </button>
               ))}
             </div>
