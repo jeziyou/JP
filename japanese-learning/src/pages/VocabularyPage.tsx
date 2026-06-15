@@ -1,10 +1,10 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
-import { vocabularyByLevel, vocabularyByCategory, type Word, type JLPTLevel, type TopicCategory } from '../data/vocabulary-data';
-import { searchVocabulary, getVocabularyByLevel, getVocabularyByLevelAndCategory } from '../utils/vocab-search';
+import { allVocabulary, vocabularyByLevel, vocabularyByCategory, CATEGORY_LABELS, type JMDictWord } from '../data/jmdict-db';
+import { searchVocabulary } from '../utils/vocab-search';
 import FuriganaText from '../components/FuriganaText';
 import { buildMeaning } from '../utils/translations';
 
-const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1'];
+const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
 const TOPIC_LABELS: Record<string, string> = {
   '食べ物・料理': '🍽️ 食べ物・料理',
@@ -31,9 +31,7 @@ const TOPIC_LABELS: Record<string, string> = {
 
 type PageMode = 'flashcard' | 'list' | 'search';
 
-function FlashCard({ word, flipped, onFlip }: { word: Word; flipped: boolean; onFlip: () => void }) {
-  const hasExample = word.example && word.example.length > 0;
-
+function FlashCard({ word, flipped, onFlip }: { word: JMDictWord; flipped: boolean; onFlip: () => void }) {
   return (
     <div
       onClick={onFlip}
@@ -67,20 +65,7 @@ function FlashCard({ word, flipped, onFlip }: { word: Word; flipped: boolean; on
         >
           <span className="text-3xl font-serif mb-3 text-white text-center">{buildMeaning(word.word, word.meaning)}</span>
           <span className="text-base text-white/80 font-sans mb-2">{word.reading}</span>
-          <span className="text-2xl font-serif mb-6 text-white">{word.word}</span>
-          {hasExample && (
-            <div className="w-full border-t border-white/30 pt-4 mt-2">
-              <p className="text-sm text-white/90 font-sans leading-relaxed mb-2">
-                {word.example}
-              </p>
-              {word.exampleReading && (
-                <p className="text-xs text-white/70 font-sans">{word.exampleReading}</p>
-              )}
-              {word.exampleMeaning && (
-                <p className="text-xs text-white/60 font-sans mt-1">{word.exampleMeaning}</p>
-              )}
-            </div>
-          )}
+          <span className="text-2xl font-serif text-white">{word.word}</span>
         </div>
       </div>
     </div>
@@ -88,7 +73,7 @@ function FlashCard({ word, flipped, onFlip }: { word: Word; flipped: boolean; on
 }
 
 export default function VocabularyPage() {
-  const [selectedLevel, setSelectedLevel] = useState<JLPTLevel>('N5');
+  const [selectedLevel, setSelectedLevel] = useState('N5');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [mode, setMode] = useState<'flashcard' | 'list'>('flashcard');
@@ -98,7 +83,7 @@ export default function VocabularyPage() {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Word[]>([]);
+  const [searchResults, setSearchResults] = useState<JMDictWord[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -169,18 +154,14 @@ export default function VocabularyPage() {
         // Local search using embedded JMdict database
         const results = searchVocabulary(query.trim(), 100);
         
-        // Convert to Word format
-        const converted: Word[] = results.map(r => ({
-          id: `search-${r.word}`,
+        // Convert to JMDictWord format
+        const converted: JMDictWord[] = results.map(r => ({
           word: r.word,
           reading: r.reading,
           meaning: r.meaning,
           partOfSpeech: r.partOfSpeech || '名詞',
           level: r.level || 'N5',
           category: r.category || '未分類',
-          example: '',
-          exampleReading: '',
-          exampleMeaning: '',
         }));
 
         setSearchResults(converted);
@@ -199,12 +180,12 @@ export default function VocabularyPage() {
     }, 300);
   }, []);
 
-  const handleLevelChange = useCallback((l: JLPTLevel) => {
+  const handleLevelChange = useCallback((l: string) => {
     setSelectedLevel(l);
     setCurrentIndex(0);
     setFlipped(false);
     setListVisible(LIST_PAGE_SIZE);
-    setTopicFilter('all');
+    setCategoryFilter('all');
   }, []);
 
   return (
@@ -427,9 +408,9 @@ export default function VocabularyPage() {
       {/* List Mode */}
       {pageMode !== 'search' && mode === 'list' && (
         <div className="space-y-3">
-          {displayedWords.map((word) => (
+          {displayedWords.map((word, idx) => (
             <div
-              key={word.id}
+              key={`${word.word}-${idx}`}
               className="bg-white rounded-xl border border-border p-5 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between">
@@ -443,27 +424,17 @@ export default function VocabularyPage() {
                   <span className="ml-2 px-2 py-0.5 bg-gold-soft text-gold text-xs rounded font-sans">
                     {word.partOfSpeech}
                   </span>
-                  {word.topic && (
-                    <span className="ml-1 px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
-                      {word.topic}
-                    </span>
-                  )}
+                  <span className="ml-1 px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
+                    {word.level}
+                  </span>
+                  <span className="ml-1 px-2 py-0.5 bg-success-soft text-success text-xs rounded font-sans">
+                    {CATEGORY_LABELS[word.category] || word.category}
+                  </span>
                 </div>
                 <span className="text-base font-bold text-ink font-sans">
                   {buildMeaning(word.word, word.meaning)}
                 </span>
               </div>
-              {word.example && (
-                <div className="mt-3 pt-3 border-t border-border">
-                  <FuriganaText
-                    text={word.example}
-                    className="text-sm text-ink-light font-serif"
-                  />
-                  <p className="text-xs text-ink-muted font-sans mt-1">
-                    {word.exampleReading}{word.exampleMeaning ? ` — ${word.exampleMeaning}` : ''}
-                  </p>
-                </div>
-              )}
             </div>
           ))}
           <div className="flex justify-center pt-4">
