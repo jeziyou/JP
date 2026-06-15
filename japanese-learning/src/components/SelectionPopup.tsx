@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { searchJisho } from '../services/api';
 import type { Word } from '../data/vocabulary-data';
+import { buildMeaning, getChineseMeaning } from '../utils/translations';
 
 interface SelectionPopupProps {
   /** The container element to listen for selection events on */
@@ -52,9 +53,14 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
 
       searchJisho(query)
         .then((results) => {
+          // Add Chinese meaning to each result
+          const withChinese = results.map((w) => ({
+            ...w,
+            meaning: buildMeaning(w.word, w.meaning),
+          }));
           setPopup((prev) =>
             prev && prev.text === query
-              ? { ...prev, results: results.slice(0, 5), loading: false }
+              ? { ...prev, results: withChinese.slice(0, 5), loading: false }
               : null,
           );
         })
@@ -114,7 +120,7 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
       )}
 
       {popup.error && (
-        <p className="text-sm text-vermillion font-sans py-2">{popup.error}</p>
+        <p className="text-sm text-error-dark font-sans py-2">{popup.error}</p>
       )}
 
       {!popup.loading && !popup.error && popup.results.length === 0 && (

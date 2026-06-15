@@ -3,6 +3,7 @@ import { articles, getRandomArticle, getArticlesByCount } from '../data/reading-
 import type { Article } from '../data/reading-data';
 import FuriganaText from '../components/FuriganaText';
 import SelectionPopup from '../components/SelectionPopup';
+import { buildMeaning } from '../utils/translations';
 
 export default function ReadingPage() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -140,7 +141,7 @@ export default function ReadingPage() {
                         {v.reading}
                       </span>
                       <span className="text-xs text-ink-muted font-sans">
-                        {v.meaning}
+                        {buildMeaning(v.word, v.meaning)}
                       </span>
                     </div>
                   </div>

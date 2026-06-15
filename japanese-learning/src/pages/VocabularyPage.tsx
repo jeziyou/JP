@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useRef } from 'react';
 import { vocabularyByLevel, type Word, type JLPTLevel, type WordCategory } from '../data/vocabulary-data';
 import { searchJisho, searchJLPTVocab } from '../services/api';
 import FuriganaText from '../components/FuriganaText';
+import { buildMeaning } from '../utils/translations';
 
 const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
@@ -64,7 +65,7 @@ function FlashCard({ word, flipped, onFlip }: { word: Word; flipped: boolean; on
           className="absolute inset-0 bg-primary rounded-2xl border-2 border-primary-light flex flex-col items-center justify-center p-6 text-white shadow-lg"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
-          <span className="text-3xl font-serif mb-3 text-white">{word.meaning}</span>
+          <span className="text-3xl font-serif mb-3 text-white text-center">{buildMeaning(word.word, word.meaning)}</span>
           <span className="text-base text-white/80 font-sans mb-2">{word.reading}</span>
           <span className="text-2xl font-serif mb-6 text-white">{word.word}</span>
           {hasExample && (
@@ -393,7 +394,7 @@ export default function VocabularyPage() {
                   )}
                 </div>
                 <span className="text-base font-bold text-ink font-sans">
-                  {word.meaning}
+                  {buildMeaning(word.word, word.meaning)}
                 </span>
               </div>
               {word.example && (
