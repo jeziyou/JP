@@ -217,7 +217,7 @@ export default function VocabularyPage() {
           onClick={() => { setPageMode('flashcard'); setCurrentIndex(0); setFlipped(false); }}
           className={`px-5 py-2.5 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
             pageMode !== 'search'
-              ? 'bg-gold text-white shadow-md'
+              ? 'bg-gold text-ink shadow-md'
               : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
           }`}
         >
@@ -274,7 +274,7 @@ export default function VocabularyPage() {
                   onClick={() => { handleLevelChange(l); }}
                   className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
                     selectedLevel === l
-                      ? 'bg-gold text-white shadow-md'
+                      ? 'bg-gold text-ink shadow-md'
                       : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
                   }`}
                 >
@@ -289,7 +289,7 @@ export default function VocabularyPage() {
                   onClick={() => setMode(m)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium font-sans transition-all duration-200 ${
                     mode === m
-                      ? 'bg-indigo-deep text-white'
+                      ? 'bg-indigo-deep text-white shadow-md'
                       : 'bg-white border border-border text-ink-light hover:bg-paper-dark'
                   }`}
                 >

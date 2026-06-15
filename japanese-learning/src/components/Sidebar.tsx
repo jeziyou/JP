@@ -29,7 +29,7 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-vermillion-soft text-vermillion shadow-sm'
+                  ? 'bg-indigo-deep text-white shadow-sm'
                   : 'text-ink-light hover:bg-paper-dark hover:text-ink'
               }`
             }
