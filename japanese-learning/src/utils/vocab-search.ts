@@ -1,24 +1,37 @@
 /**
  * JMdict Search Utilities
  * Fast local search for Japanese vocabulary
+ * Uses dynamic import to avoid loading all data upfront
  */
 
-import { allVocabulary, searchIndex, type JMDictWord } from '../data/jmdict-db';
+import type { JMDictWord } from '../data/jmdict-db';
+import { loadVocabulary } from '../data/jmdict-loader';
 
-/**
- * Search vocabulary by query
- * Supports kanji, kana, and romanized input
- */
-export function searchVocabulary(query: string, limit: number = 50): JMDictWord[] {
+let cachedVocabulary: JMDictWord[] | null = null;
+let cachedSearchIndex: Record<string, number[]> | null = null;
+
+async function getVocabulary(): Promise<{ vocabulary: JMDictWord[]; searchIndex: Record<string, number[]> }> {
+  if (cachedVocabulary) {
+    return { vocabulary: cachedVocabulary, searchIndex: cachedSearchIndex! };
+  }
+
+  const { allVocabulary, searchIndex } = await loadVocabulary();
+  cachedVocabulary = allVocabulary;
+  cachedSearchIndex = searchIndex;
+  
+  return { vocabulary: allVocabulary, searchIndex };
+}
+
+export async function searchVocabulary(query: string, limit: number = 50): Promise<JMDictWord[]> {
   if (!query || query.trim().length === 0) {
     return [];
   }
 
+  const { vocabulary } = await getVocabulary();
   const q = query.trim().toLowerCase();
   const results = new Set<JMDictWord>();
 
-  // Direct word match
-  for (const word of allVocabulary) {
+  for (const word of vocabulary) {
     if (word.word.toLowerCase().includes(q) || 
         word.reading.toLowerCase().includes(q) ||
         word.meaning.toLowerCase().includes(q)) {
@@ -27,12 +40,12 @@ export function searchVocabulary(query: string, limit: number = 50): JMDictWord[
     }
   }
 
-  // Search index match (for exact kana/romaji matches)
+  const { searchIndex } = await getVocabulary();
   const indexResults = searchIndex[q];
   if (indexResults) {
     for (const idx of indexResults) {
-      if (allVocabulary[idx]) {
-        results.add(allVocabulary[idx]);
+      if (vocabulary[idx]) {
+        results.add(vocabulary[idx]);
         if (results.size >= limit) break;
       }
     }
@@ -41,59 +54,48 @@ export function searchVocabulary(query: string, limit: number = 50): JMDictWord[
   return Array.from(results).slice(0, limit);
 }
 
-/**
- * Get vocabulary by category
- */
-export function getVocabularyByCategory(category: string): JMDictWord[] {
+export async function getVocabularyByCategory(category: string): Promise<JMDictWord[]> {
+  const { vocabulary } = await getVocabulary();
   if (category === 'all') {
-    return allVocabulary;
+    return vocabulary;
   }
-  return allVocabulary.filter(w => w.category === category);
+  return vocabulary.filter(w => w.category === category);
 }
 
-/**
- * Get vocabulary by JLPT level
- */
-export function getVocabularyByLevel(level: string): JMDictWord[] {
-  return allVocabulary.filter(w => w.level === level);
+export async function getVocabularyByLevel(level: string): Promise<JMDictWord[]> {
+  const { vocabulary } = await getVocabulary();
+  return vocabulary.filter(w => w.level === level);
 }
 
-/**
- * Get vocabulary by both level and category
- */
-export function getVocabularyByLevelAndCategory(
+export async function getVocabularyByLevelAndCategory(
   level: string, 
   category: string
-): JMDictWord[] {
-  let results = getVocabularyByLevel(level);
+): Promise<JMDictWord[]> {
+  let results = await getVocabularyByLevel(level);
   if (category !== 'all') {
     results = results.filter(w => w.category === category);
   }
   return results;
 }
 
-/**
- * Get category statistics
- */
-export function getCategoryStats(): Record<string, number> {
+export async function getCategoryStats(): Promise<Record<string, number>> {
+  const { vocabulary } = await getVocabulary();
   const stats: Record<string, number> = {
-    'all': allVocabulary.length,
+    'all': vocabulary.length,
   };
   
-  for (const word of allVocabulary) {
+  for (const word of vocabulary) {
     stats[word.category] = (stats[word.category] || 0) + 1;
   }
   
   return stats;
 }
 
-/**
- * Get level statistics
- */
-export function getLevelStats(): Record<string, number> {
+export async function getLevelStats(): Promise<Record<string, number>> {
+  const { vocabulary } = await getVocabulary();
   const stats: Record<string, number> = {};
   
-  for (const word of allVocabulary) {
+  for (const word of vocabulary) {
     stats[word.level] = (stats[word.level] || 0) + 1;
   }
   

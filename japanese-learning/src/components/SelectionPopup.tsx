@@ -3,7 +3,6 @@ import { searchVocabulary, type JMDictWord } from '../utils/vocab-search';
 import { buildMeaning } from '../utils/translations';
 
 interface SelectionPopupProps {
-  /** The container element to listen for selection events on */
   enabled: boolean;
 }
 
@@ -23,9 +22,8 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
   const handleMouseUp = useCallback(() => {
     if (!enabled) return;
 
-    // Small delay so the selection is finalized
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
+    timerRef.current = setTimeout(async () => {
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed) {
         return;
@@ -34,15 +32,12 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
       const text = selection.toString().trim();
       if (!text) return;
 
-      // Check if text contains Japanese characters (hiragana, katakana, kanji)
       if (!/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text)) {
         return;
       }
 
-      // Limit to reasonable length
       const query = text.slice(0, 20);
 
-      // Get selection position
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
@@ -50,20 +45,25 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
 
       setPopup({ x, y, text: query, results: [], loading: true, error: '' });
 
-      // Use local search instead of external API
-      const results = searchVocabulary(query, 5);
-      
-      // Add Chinese meaning to each result
-      const withChinese = results.map((w) => ({
-        ...w,
-        meaning: buildMeaning(w.word, w.meaning),
-      }));
-      
-      setPopup((prev) =>
-        prev && prev.text === query
-          ? { ...prev, results: withChinese, loading: false }
-          : null,
-      );
+      try {
+        const results = await searchVocabulary(query, 5);
+        const withChinese = results.map((w) => ({
+          ...w,
+          meaning: buildMeaning(w.word, w.meaning),
+        }));
+        
+        setPopup((prev) =>
+          prev && prev.text === query
+            ? { ...prev, results: withChinese, loading: false }
+            : null,
+        );
+      } catch {
+        setPopup((prev) =>
+          prev && prev.text === query
+            ? { ...prev, error: '查询失败，请重试', loading: false }
+            : null,
+        );
+      }
     }, 150);
   }, [enabled]);
 
@@ -96,7 +96,6 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
         transform: 'translateX(-50%)',
       }}
     >
-      {/* Close button */}
       <button
         onClick={dismiss}
         className="absolute top-2 right-2 w-6 h-6 rounded-full bg-paper-dark text-ink-muted text-xs hover:bg-paper-light transition-colors flex items-center justify-center"

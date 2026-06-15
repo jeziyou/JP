@@ -1,7 +1,6 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
-import { allVocabulary, vocabularyByLevel, vocabularyByCategory, CATEGORY_LABELS, type JMDictWord } from '../data/jmdict-db';
-import { searchVocabulary } from '../utils/vocab-search';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { buildMeaning } from '../utils/translations';
+import { loadVocabulary, searchVocabulary, type JMDictWord } from '../data/jmdict-loader';
 
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
@@ -80,6 +79,12 @@ export default function VocabularyPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [filterType, setFilterType] = useState<'level' | 'category'>('level');
 
+  // Data loading state
+  const [isLoading, setIsLoading] = useState(true);
+  const [vocabularyByLevel, setVocabularyByLevel] = useState<Record<string, JMDictWord[]>>({});
+  const [vocabularyByCategory, setVocabularyByCategory] = useState<Record<string, JMDictWord[]>>({});
+  const [allCategories, setAllCategories] = useState<string[]>(['all']);
+
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<JMDictWord[]>([]);
@@ -91,30 +96,29 @@ export default function VocabularyPage() {
   const LIST_PAGE_SIZE = 15;
   const [listVisible, setListVisible] = useState(LIST_PAGE_SIZE);
 
-  const staticWords = useMemo(() => {
+  // Load vocabulary data on mount
+  useEffect(() => {
+    loadVocabulary().then(({ vocabularyByLevel: levelData, vocabularyByCategory: categoryData }) => {
+      setVocabularyByLevel(levelData);
+      setVocabularyByCategory(categoryData);
+      setAllCategories(['all', ...Object.keys(categoryData).sort()]);
+      setIsLoading(false);
+    }).catch(() => {
+      setIsLoading(false);
+    });
+  }, []);
+
+  const staticWords = () => {
     if (filterType === 'level') {
-      return vocabularyByLevel[selectedLevel];
+      return vocabularyByLevel[selectedLevel] || [];
     } else {
       return categoryFilter === 'all' 
         ? Object.values(vocabularyByCategory).flat()
         : vocabularyByCategory[categoryFilter] || [];
     }
-  }, [selectedLevel, categoryFilter, filterType]);
+  };
 
-  // Extract available categories
-  const availableCategories = useMemo(() => {
-    return ['all', ...Object.keys(vocabularyByCategory).sort()];
-  }, []);
-
-  const filteredWords = useMemo(() => {
-    let base = pageMode === 'search' ? searchResults : staticWords;
-    if (pageMode !== 'search' && filterType === 'level' && categoryFilter !== 'all') {
-      base = base.filter((w) => w.category === categoryFilter);
-    }
-    return base;
-  }, [pageMode, searchResults, staticWords, categoryFilter, filterType]);
-
-  const words = filteredWords;
+  const words = pageMode === 'search' ? searchResults : staticWords();
   const displayedWords = pageMode !== 'search' && mode === 'list' ? words.slice(0, listVisible) : words;
   const currentWord = words[currentIndex];
 
@@ -143,31 +147,18 @@ export default function VocabularyPage() {
       return;
     }
 
-    // Debounce: wait 300ms before firing
     if (searchTimer.current) clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(async () => {
       setIsSearching(true);
       setSearchError('');
 
       try {
-        // Local search using embedded JMdict database
-        const results = searchVocabulary(query.trim(), 100);
-        
-        // Convert to JMDictWord format
-        const converted: JMDictWord[] = results.map(r => ({
-          word: r.word,
-          reading: r.reading,
-          meaning: r.meaning,
-          partOfSpeech: r.partOfSpeech || '名詞',
-          level: r.level || 'N5',
-          category: r.category || '未分類',
-        }));
-
-        setSearchResults(converted);
+        const results = await searchVocabulary(query.trim(), 100);
+        setSearchResults(results);
         setCurrentIndex(0);
         setFlipped(false);
 
-        if (converted.length === 0) {
+        if (results.length === 0) {
           setSearchError('未找到相关单词，请尝试其他关键词');
         }
       } catch {
@@ -186,6 +177,25 @@ export default function VocabularyPage() {
     setListVisible(LIST_PAGE_SIZE);
     setCategoryFilter('all');
   }, []);
+
+  const handleCategoryChange = useCallback((c: string) => {
+    setCategoryFilter(c);
+    setCurrentIndex(0);
+    setFlipped(false);
+    setListVisible(LIST_PAGE_SIZE);
+  }, []);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="animate-slide-up flex items-center justify-center py-16">
+        <div className="text-center">
+          <div className="text-4xl mb-4">📚</div>
+          <p className="text-ink-muted font-sans">正在加载词汇数据...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-slide-up">
@@ -244,7 +254,7 @@ export default function VocabularyPage() {
           )}
           {pageMode === 'search' && searchResults.length > 0 && (
             <p className="text-xs text-ink-muted mt-2 font-sans">
-              找到 {searchResults.length} 个结果（数据来源：Jisho.org / JLPT Vocab API）
+              找到 {searchResults.length} 个结果（数据来源：JMdict）
             </p>
           )}
         </div>
@@ -258,7 +268,7 @@ export default function VocabularyPage() {
               {LEVELS.map((l) => (
                 <button
                   key={l}
-                  onClick={() => { handleLevelChange(l); }}
+                  onClick={() => handleLevelChange(l)}
                   className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
                     selectedLevel === l
                       ? 'bg-primary text-white shadow-md'
@@ -298,7 +308,7 @@ export default function VocabularyPage() {
               按级别
             </button>
             <button
-              onClick={() => { setFilterType('category'); setSelectedLevel('N5'); }}
+              onClick={() => { setFilterType('category'); }}
               className={`px-3 py-1.5 rounded-md text-xs font-medium font-sans transition-all duration-200 ${
                 filterType === 'category'
                   ? 'bg-primary text-white shadow-sm'
@@ -312,10 +322,10 @@ export default function VocabularyPage() {
           {filterType === 'category' ? (
             <div className="flex flex-wrap gap-1 items-center">
               <span className="text-xs text-ink-muted font-sans mr-2">分类：</span>
-              {availableCategories.map((c) => (
+              {allCategories.map((c) => (
                 <button
                   key={c}
-                  onClick={() => { setCategoryFilter(c); setCurrentIndex(0); setFlipped(false); setListVisible(LIST_PAGE_SIZE); }}
+                  onClick={() => handleCategoryChange(c)}
                   className={`px-2.5 py-1 rounded-md text-xs font-sans transition-all duration-200 ${
                     categoryFilter === c
                       ? 'bg-primary text-white shadow-sm'
@@ -330,7 +340,7 @@ export default function VocabularyPage() {
             <div className="flex flex-wrap gap-1 items-center">
               <span className="text-xs text-ink-muted font-sans mr-2">细分：</span>
               <button
-                onClick={() => { setCategoryFilter('all'); setCurrentIndex(0); setFlipped(false); setListVisible(LIST_PAGE_SIZE); }}
+                onClick={() => handleCategoryChange('all')}
                 className={`px-2.5 py-1 rounded-md text-xs font-sans transition-all duration-200 ${
                   categoryFilter === 'all'
                     ? 'bg-primary text-white shadow-sm'
@@ -339,10 +349,10 @@ export default function VocabularyPage() {
               >
                 全部
               </button>
-              {Array.from(new Set(staticWords.map(w => w.category))).sort().map((c) => (
+              {Array.from(new Set(staticWords().map(w => w.category))).sort().map((c) => (
                 <button
                   key={c}
-                  onClick={() => { setCategoryFilter(c); setCurrentIndex(0); setFlipped(false); setListVisible(LIST_PAGE_SIZE); }}
+                  onClick={() => handleCategoryChange(c)}
                   className={`px-2.5 py-1 rounded-md text-xs font-sans transition-all duration-200 ${
                     categoryFilter === c
                       ? 'bg-primary text-white shadow-sm'
@@ -425,9 +435,6 @@ export default function VocabularyPage() {
                   </span>
                   <span className="ml-1 px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
                     {word.level}
-                  </span>
-                  <span className="ml-1 px-2 py-0.5 bg-success-soft text-success text-xs rounded font-sans">
-                    {CATEGORY_LABELS[word.category] || word.category}
                   </span>
                 </div>
                 <span className="text-base font-bold text-ink font-sans">
