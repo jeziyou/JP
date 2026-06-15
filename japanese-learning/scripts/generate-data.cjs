@@ -6,6 +6,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// Load Chinese translations
+const wordTranslations = require('./word-translations.cjs');
+
 // ─── Load JMdict data ────────────────────────────────────────────────
 const jmdictPath = '/tmp/jmdict-eng-common-3.6.2.json';
 const raw = JSON.parse(fs.readFileSync(jmdictPath, 'utf-8'));
@@ -277,7 +280,12 @@ for (let i = 0; i < words.length; i++) {
     }
   }
 
-  const meaning = meanings.slice(0, 3).join('；');
+  const meaningEn = meanings.slice(0, 3).join('；');
+  const meaningCn = wordTranslations[wordText] || '';
+  // Combine English and Chinese: "English / 中文"
+  const meaning = meaningCn && meaningCn !== meaningEn
+    ? `${meaningEn} / ${meaningCn}`
+    : meaningEn;
   const partOfSpeech = getBestPOS(allPOS);
   const level = assignJLPTLevel(entry, i);
   const topic = getTopic(allField);

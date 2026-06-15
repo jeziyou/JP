@@ -370,8 +370,13 @@ for (const level of ['N5', 'N4', 'N3', 'N2', 'N1']) {
   for (const w of (wordsByLevel[level] || [])) {
     if (!wordReadingMap[w.word]) {
       wordReadingMap[w.word] = w.reading;
-      // Use Chinese translation if available, otherwise use JMdict meaning
-      wordMeaningMap[w.word] = wordTranslations[w.word] || w.meaning.split('；')[0];
+      // Combine English (from JMdict) and Chinese translation
+      const english = w.meaning.split('；')[0];
+      const chinese = wordTranslations[w.word] || '';
+      // Format as "English / 中文"
+      wordMeaningMap[w.word] = chinese && chinese !== english
+        ? `${english} / ${chinese}`
+        : english;
       wordLevelMap[w.word] = level;
       wordPosMap[w.word] = w.pos;
     }
