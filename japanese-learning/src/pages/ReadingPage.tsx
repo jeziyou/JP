@@ -1,15 +1,19 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { articles, getRandomArticle, getArticlesByCount } from '../data/reading-data';
 import type { Article } from '../data/reading-data';
 import FuriganaText from '../components/FuriganaText';
 import SelectionPopup from '../components/SelectionPopup';
 import { buildMeaning } from '../utils/translations';
+import { translateToChinese, isPlaceholderTranslation } from '../services/translate-service';
 
 export default function ReadingPage() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [showTranslation, setShowTranslation] = useState(false);
   const [displayCount, setDisplayCount] = useState(6);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translationError, setTranslationError] = useState<string | null>(null);
 
   const displayedArticles = useMemo(
     () => getArticlesByCount(displayCount),
@@ -29,18 +33,58 @@ export default function ReadingPage() {
   const handleArticleClick = (article: Article) => {
     setSelectedArticle(article);
     setShowTranslation(false);
+    setTranslatedText(null);
+    setTranslationError(null);
   };
 
   const handleBack = () => {
     setSelectedArticle(null);
     setShowTranslation(false);
+    setTranslatedText(null);
+    setTranslationError(null);
   };
 
   const handleRandom = () => {
     const article = getRandomArticle();
     setSelectedArticle(article);
     setShowTranslation(false);
+    setTranslatedText(null);
+    setTranslationError(null);
   };
+
+  // Handle translation: use API if current translation is placeholder
+  const handleShowTranslation = useCallback(async () => {
+    if (!selectedArticle) return;
+    
+    // Check if current translation is a placeholder
+    const needsTranslation = isPlaceholderTranslation(selectedArticle.translation);
+    
+    if (needsTranslation && !translatedText) {
+      // Need to translate via API
+      setIsTranslating(true);
+      setTranslationError(null);
+      
+      try {
+        const result = await translateToChinese(selectedArticle.content);
+        if (result) {
+          setTranslatedText(result);
+          setShowTranslation(true);
+        } else {
+          setTranslationError('翻译失败，请稍后重试');
+          // Still show the placeholder translation
+          setShowTranslation(true);
+        }
+      } catch (err) {
+        setTranslationError('翻译服务暂时不可用');
+        setShowTranslation(true);
+      } finally {
+        setIsTranslating(false);
+      }
+    } else {
+      // Toggle translation visibility
+      setShowTranslation(!showTranslation);
+    }
+  }, [selectedArticle, translatedText, showTranslation]);
 
   return (
     <div className="animate-slide-up">
@@ -101,20 +145,39 @@ export default function ReadingPage() {
             {/* Translation toggle */}
             <div className="border-t border-border pt-4">
               <button
-                onClick={() => setShowTranslation(!showTranslation)}
-                className="flex items-center gap-2 text-sm font-sans text-primary hover:text-primary-light transition-colors"
+                onClick={handleShowTranslation}
+                disabled={isTranslating}
+                className="flex items-center gap-2 text-sm font-sans text-primary hover:text-primary-light transition-colors disabled:opacity-50"
               >
-                <span>{showTranslation ? '隐藏译文' : '显示译文'}</span>
-                <span
-                  className={`transition-transform ${showTranslation ? 'rotate-180' : ''}`}
-                >
-                  ▼
+                <span>
+                  {isTranslating 
+                    ? '翻译中...' 
+                    : showTranslation 
+                      ? '隐藏译文' 
+                      : isPlaceholderTranslation(selectedArticle.translation) 
+                        ? '点击翻译全文' 
+                        : '显示译文'}
                 </span>
+                {!isTranslating && (
+                  <span
+                    className={`transition-transform ${showTranslation ? 'rotate-180' : ''}`}
+                  >
+                    ▼
+                  </span>
+                )}
+                {isTranslating && (
+                  <span className="animate-spin">⟳</span>
+                )}
               </button>
               {showTranslation && (
                 <div className="mt-4 p-4 bg-paper-dark rounded-lg animate-slide-up">
+                  {translationError && (
+                    <p className="text-xs text-error-dark font-sans mb-2">
+                      {translationError}
+                    </p>
+                  )}
                   <p className="text-sm text-ink-light font-sans leading-relaxed whitespace-pre-line">
-                    {selectedArticle.translation}
+                    {translatedText || selectedArticle.translation}
                   </p>
                 </div>
               )}
