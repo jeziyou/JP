@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { vocabularyByLevel, type Word, type JLPTLevel } from '../data/vocabulary-data';
-import { searchJisho, searchJLPTVocab, fetchJLPTVocab } from '../services/api';
+import { searchJisho, searchJLPTVocab } from '../services/api';
 import FuriganaText from '../components/FuriganaText';
 
 const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1'];
@@ -77,13 +77,13 @@ export default function VocabularyPage() {
   const [searchError, setSearchError] = useState('');
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // API-loaded words to augment static data
-  const [apiWords, setApiWords] = useState<Word[]>([]);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [apiPage, setApiPage] = useState(0);
+  // Pagination for list mode
+  const LIST_PAGE_SIZE = 15;
+  const [listVisible, setListVisible] = useState(LIST_PAGE_SIZE);
 
   const staticWords = useMemo(() => vocabularyByLevel[selectedLevel], [selectedLevel]);
-  const words = pageMode === 'search' ? searchResults : [...staticWords, ...apiWords];
+  const words = pageMode === 'search' ? searchResults : staticWords;
+  const displayedWords = pageMode !== 'search' && mode === 'list' ? words.slice(0, listVisible) : words;
   const currentWord = words[currentIndex];
 
   const goNext = useCallback(() => {
@@ -150,22 +150,11 @@ export default function VocabularyPage() {
     }, 400);
   }, []);
 
-  const loadMore = useCallback(async () => {
-    setIsLoadingMore(true);
-    const levelNum = LEVELS.indexOf(selectedLevel) + 1; // N5=5, N1=1
-    const nextPage = apiPage + 1;
-    const { words: newWords } = await fetchJLPTVocab(levelNum, nextPage * 50, 50);
-    setApiWords((prev) => [...prev, ...newWords]);
-    setApiPage(nextPage);
-    setIsLoadingMore(false);
-  }, [selectedLevel, apiPage]);
-
   const handleLevelChange = useCallback((l: JLPTLevel) => {
     setSelectedLevel(l);
     setCurrentIndex(0);
     setFlipped(false);
-    setApiWords([]);
-    setApiPage(0);
+    setListVisible(LIST_PAGE_SIZE);
   }, []);
 
   return (
@@ -314,7 +303,7 @@ export default function VocabularyPage() {
       {/* List Mode */}
       {pageMode !== 'search' && mode === 'list' && (
         <div className="space-y-3">
-          {words.map((word) => (
+          {displayedWords.map((word) => (
             <div
               key={word.id}
               className="bg-white rounded-xl border border-border p-5 hover:shadow-md transition-shadow"
@@ -349,13 +338,19 @@ export default function VocabularyPage() {
             </div>
           ))}
           <div className="flex justify-center pt-4">
-            <button
-              onClick={loadMore}
-              disabled={isLoadingMore}
-              className="px-6 py-3 rounded-xl bg-indigo-deep text-white text-sm font-bold font-sans hover:bg-indigo-mid transition-colors disabled:opacity-50"
-            >
-              {isLoadingMore ? '加载中…' : `加载更多${selectedLevel}词汇（来自在线API）`}
-            </button>
+            {listVisible < words.length && (
+              <button
+                onClick={() => setListVisible((p) => p + LIST_PAGE_SIZE)}
+                className="px-6 py-3 rounded-xl bg-indigo-deep text-white text-sm font-bold font-sans hover:bg-indigo-mid transition-colors"
+              >
+                显示更多（{listVisible} / {words.length}）
+              </button>
+            )}
+            {listVisible >= words.length && words.length > 0 && (
+              <p className="text-xs text-ink-muted font-sans">
+                已显示全部 {words.length} 个单词
+              </p>
+            )}
           </div>
         </div>
       )}

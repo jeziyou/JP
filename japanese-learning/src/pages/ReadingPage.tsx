@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { articles, getRandomArticle, getArticlesByCount } from '../data/reading-data';
 import type { Article } from '../data/reading-data';
 import FuriganaText from '../components/FuriganaText';
+import SelectionPopup from '../components/SelectionPopup';
 
 export default function ReadingPage() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -89,6 +90,12 @@ export default function ReadingPage() {
               text={selectedArticle.content}
               className="text-lg font-serif text-ink leading-relaxed mb-6"
             />
+
+            <p className="text-xs text-ink-muted font-sans mb-4">
+              选中日语文字即可查询释义
+            </p>
+
+            <SelectionPopup enabled={!!selectedArticle} />
 
             {/* Translation toggle */}
             <div className="border-t border-border pt-4">

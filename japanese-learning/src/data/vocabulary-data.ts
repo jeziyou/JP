@@ -33,6 +33,21 @@ const n5Words: Word[] = [
   { id: 'n5-018', word: '車', reading: 'くるま', meaning: '车', partOfSpeech: '名词', level: 'N5', example: '新しい車を買いました。', exampleReading: 'あたらしいくるまをかいました。', exampleMeaning: '买了新车。' },
   { id: 'n5-019', word: '電話', reading: 'でんわ', meaning: '电话', partOfSpeech: '名词', level: 'N5', example: '電話をかけます。', exampleReading: 'でんわをかけます。', exampleMeaning: '打电话。' },
   { id: 'n5-020', word: '手紙', reading: 'てがみ', meaning: '信', partOfSpeech: '名词', level: 'N5', example: '手紙を書きます。', exampleReading: 'てがみをかきます。', exampleMeaning: '写信。' },
+  { id: 'n5-021', word: '聞く', reading: 'きく', meaning: '听；问', partOfSpeech: '动词', level: 'N5', example: '音楽を聞きます。', exampleReading: 'おんがくをききます。', exampleMeaning: '听音乐。' },
+  { id: 'n5-022', word: '読む', reading: 'よむ', meaning: '读', partOfSpeech: '动词', level: 'N5', example: '本を読みます。', exampleReading: 'ほんをよみます。', exampleMeaning: '读书。' },
+  { id: 'n5-023', word: '書く', reading: 'かく', meaning: '写', partOfSpeech: '动词', level: 'N5', example: '名前を書きます。', exampleReading: 'なまえをかきます。', exampleMeaning: '写名字。' },
+  { id: 'n5-024', word: '話す', reading: 'はなす', meaning: '说', partOfSpeech: '动词', level: 'N5', example: '日本語を話します。', exampleReading: 'にほんごをはなします。', exampleMeaning: '说日语。' },
+  { id: 'n5-025', word: '買う', reading: 'かう', meaning: '买', partOfSpeech: '动词', level: 'N5', example: 'パンを買います。', exampleReading: 'ぱんをかいます。', exampleMeaning: '买面包。' },
+  { id: 'n5-026', word: '会う', reading: 'あう', meaning: '见面', partOfSpeech: '动词', level: 'N5', example: '友達に会います。', exampleReading: 'ともだちにあいます。', exampleMeaning: '和朋友见面。' },
+  { id: 'n5-027', word: '作る', reading: 'つくる', meaning: '制作', partOfSpeech: '动词', level: 'N5', example: '料理を作ります。', exampleReading: 'りょうりをつくります。', exampleMeaning: '做菜。' },
+  { id: 'n5-028', word: '天気', reading: 'てんき', meaning: '天气', partOfSpeech: '名词', level: 'N5', example: 'いい天気ですね。', exampleReading: 'いいてんきですね。', exampleMeaning: '天气真好啊。' },
+  { id: 'n5-029', word: '時間', reading: 'じかん', meaning: '时间', partOfSpeech: '名词', level: 'N5', example: '時間がありません。', exampleReading: 'じかんがありません。', exampleMeaning: '没有时间。' },
+  { id: 'n5-030', word: '仕事', reading: 'しごと', meaning: '工作', partOfSpeech: '名词', level: 'N5', example: '仕事は忙しいです。', exampleReading: 'しごとはいそがしいです。', exampleMeaning: '工作很忙。' },
+  { id: 'n5-031', word: '家', reading: 'いえ', meaning: '家', partOfSpeech: '名词', level: 'N5', example: '家に帰ります。', exampleReading: 'いえにかえります。', exampleMeaning: '回家。' },
+  { id: 'n5-032', word: '店', reading: 'みせ', meaning: '店', partOfSpeech: '名词', level: 'N5', example: 'あの店は安いです。', exampleReading: 'あのみせはやすいです。', exampleMeaning: '那家店很便宜。' },
+  { id: 'n5-033', word: '駅', reading: 'えき', meaning: '车站', partOfSpeech: '名词', level: 'N5', example: '駅まで歩きます。', exampleReading: 'えきまであるきます。', exampleMeaning: '走到车站。' },
+  { id: 'n5-034', word: '病院', reading: 'びょういん', meaning: '医院', partOfSpeech: '名词', level: 'N5', example: '病院に行きます。', exampleReading: 'びょういんにいきます。', exampleMeaning: '去医院。' },
+  { id: 'n5-035', word: '公園', reading: 'こうえん', meaning: '公园', partOfSpeech: '名词', level: 'N5', example: '公園で遊びます。', exampleReading: 'こうえんであそびます。', exampleMeaning: '在公园玩。' },
 ];
 
 const n4Words: Word[] = [
@@ -51,6 +66,16 @@ const n4Words: Word[] = [
   { id: 'n4-013', word: '楽しむ', reading: 'たのしむ', meaning: '享受', partOfSpeech: '动词', level: 'N4', example: '旅行を楽しみました。', exampleReading: 'りょこうをたのしみました。', exampleMeaning: '享受了旅行。' },
   { id: 'n4-014', word: '似合う', reading: 'にあう', meaning: '适合', partOfSpeech: '动词', level: 'N4', example: 'この服はあなたに似合います。', exampleReading: 'このふくはあなたにあいます。', exampleMeaning: '这件衣服适合你。' },
   { id: 'n4-015', word: '季節', reading: 'きせつ', meaning: '季节', partOfSpeech: '名词', level: 'N4', example: '好きな季節は秋です。', exampleReading: 'すきなきせつはあきです。', exampleMeaning: '喜欢的季节是秋天。' },
+  { id: 'n4-016', word: '挨拶', reading: 'あいさつ', meaning: '问候', partOfSpeech: '名词/动词', level: 'N4', example: '元気に挨拶しましょう。', exampleReading: 'げんきにあいさつしましょう。', exampleMeaning: '精神地打个招呼吧。' },
+  { id: 'n4-017', word: '連絡', reading: 'れんらく', meaning: '联系', partOfSpeech: '名词/动词', level: 'N4', example: '後で連絡します。', exampleReading: 'あとでれんらくします。', exampleMeaning: '稍后联系。' },
+  { id: 'n4-018', word: '相談', reading: 'そうだん', meaning: '商量', partOfSpeech: '名词/动词', level: 'N4', example: '先生に相談してください。', exampleReading: 'せんせいにそうだんしてください。', exampleMeaning: '请和老师商量。' },
+  { id: 'n4-019', word: '連れる', reading: 'つれる', meaning: '带；陪同', partOfSpeech: '动词', level: 'N4', example: '子供を連れて公園に行く。', exampleReading: 'こどもをつれてこうえんにいく。', exampleMeaning: '带孩子去公园。' },
+  { id: 'n4-020', word: '変わる', reading: 'かわる', meaning: '变化', partOfSpeech: '动词', level: 'N4', example: '季節が変わった。', exampleReading: 'きせつがかわった。', exampleMeaning: '季节变了。' },
+  { id: 'n4-021', word: '留学', reading: 'りゅうがく', meaning: '留学', partOfSpeech: '名词/动词', level: 'N4', example: '日本に留学したいです。', exampleReading: 'にほんにりゅうがくしたいです。', exampleMeaning: '想去日本留学。' },
+  { id: 'n4-022', word: '生活', reading: 'せいかつ', meaning: '生活', partOfSpeech: '名词', level: 'N4', example: '一人暮らしの生活を始めた。', exampleReading: 'ひとりぐらしのせいかつをはじめた。', exampleMeaning: '开始了独居生活。' },
+  { id: 'n4-023', word: '案内', reading: 'あんない', meaning: '向导', partOfSpeech: '名词/动词', level: 'N4', example: '街を案内します。', exampleReading: 'まちをあんないします。', exampleMeaning: '带您游览街道。' },
+  { id: 'n4-024', word: '進む', reading: 'すすむ', meaning: '前进', partOfSpeech: '动词', level: 'N4', example: '前に進んでください。', exampleReading: 'まえにすすんでください。', exampleMeaning: '请向前走。' },
+  { id: 'n4-025', word: '戻る', reading: 'もどる', meaning: '返回', partOfSpeech: '动词', level: 'N4', example: '席に戻ってください。', exampleReading: 'せきにもどってください。', exampleMeaning: '请回到座位。' },
 ];
 
 const n3Words: Word[] = [
@@ -64,6 +89,16 @@ const n3Words: Word[] = [
   { id: 'n3-008', word: '解決', reading: 'かいけつ', meaning: '解决', partOfSpeech: '名词/动词', level: 'N3', example: '問題を解決する。', exampleReading: 'もんだいをかいけつする。', exampleMeaning: '解决问题。' },
   { id: 'n3-009', word: '確かめる', reading: 'たしかめる', meaning: '确认', partOfSpeech: '动词', level: 'N3', example: 'もう一度確かめてください。', exampleReading: 'もういちどたしかめてください。', exampleMeaning: '请再确认一次。' },
   { id: 'n3-010', word: '諦める', reading: 'あきらめる', meaning: '放弃', partOfSpeech: '动词', level: 'N3', example: '絶対に諦めない。', exampleReading: 'ぜったいにあきらめない。', exampleMeaning: '绝不放弃。' },
+  { id: 'n3-011', word: '出席', reading: 'しゅっせき', meaning: '出席', partOfSpeech: '名词/动词', level: 'N3', example: '会議に出席します。', exampleReading: 'かいぎにしゅっせきします。', exampleMeaning: '出席会议。' },
+  { id: 'n3-012', word: '合格', reading: 'ごうかく', meaning: '合格', partOfSpeech: '名词/动词', level: 'N3', example: '試験に合格した。', exampleReading: 'しけんにごうかくした。', exampleMeaning: '考试合格了。' },
+  { id: 'n3-013', word: '通訳', reading: 'つうやく', meaning: '口译', partOfSpeech: '名词/动词', level: 'N3', example: '通訳の仕事をしています。', exampleReading: 'つうやくのしごとをしています。', exampleMeaning: '从事口译工作。' },
+  { id: 'n3-014', word: '到着', reading: 'とうちゃく', meaning: '到达', partOfSpeech: '名词/动词', level: 'N3', example: 'まもなく到着します。', exampleReading: 'まもなくとうちゃくします。', exampleMeaning: '即将到达。' },
+  { id: 'n3-015', word: '反対', reading: 'はんたい', meaning: '反对', partOfSpeech: '名词/动词', level: 'N3', example: 'その意見に反対です。', exampleReading: 'そのいけんにはんたいです。', exampleMeaning: '反对那个意见。' },
+  { id: 'n3-016', word: '注文', reading: 'ちゅうもん', meaning: '点餐；订购', partOfSpeech: '名词/动词', level: 'N3', example: 'コーヒーを注文した。', exampleReading: 'こーひーをちゅうもんした。', exampleMeaning: '点了咖啡。' },
+  { id: 'n3-017', word: '交換', reading: 'こうかん', meaning: '交换', partOfSpeech: '名词/动词', level: 'N3', example: '名刺を交換しましょう。', exampleReading: 'めいしをこうかんしましょう。', exampleMeaning: '交换名片吧。' },
+  { id: 'n3-018', word: '要求', reading: 'ようきゅう', meaning: '要求', partOfSpeech: '名词/动词', level: 'N3', example: '給料のアップを要求した。', exampleReading: 'きゅうりょうのあっぷをようきゅうした。', exampleMeaning: '要求涨工资。' },
+  { id: 'n3-019', word: '伝える', reading: 'つたえる', meaning: '传达', partOfSpeech: '动词', level: 'N3', example: '伝言を伝えてください。', exampleReading: 'でんごんをつたえてください。', exampleMeaning: '请转达留言。' },
+  { id: 'n3-020', word: '比べる', reading: 'くらべる', meaning: '比较', partOfSpeech: '动词', level: 'N3', example: '二つの商品を比べる。', exampleReading: 'ふたつのしょうひんをくらべる。', exampleMeaning: '比较两个商品。' },
 ];
 
 const n2Words: Word[] = [
@@ -75,6 +110,13 @@ const n2Words: Word[] = [
   { id: 'n2-006', word: '承る', reading: 'うけたまわる', meaning: '恭听，接受', partOfSpeech: '动词', level: 'N2', example: 'ご意見を承ります。', exampleReading: 'ごいけんをうけたまわります。', exampleMeaning: '恭听您的意见。' },
   { id: 'n2-007', word: '言い訳', reading: 'いいわけ', meaning: '借口', partOfSpeech: '名词', level: 'N2', example: '言い訳は許されない。', exampleReading: 'いいわけはゆるされない。', exampleMeaning: '借口不被允许。' },
   { id: 'n2-008', word: '手配', reading: 'てはい', meaning: '安排，部署', partOfSpeech: '名词/动词', level: 'N2', example: '交通の手配をお願いします。', exampleReading: 'こうつうのてはいをおねがいします。', exampleMeaning: '请安排交通。' },
+  { id: 'n2-009', word: '方針', reading: 'ほうしん', meaning: '方针', partOfSpeech: '名词', level: 'N2', example: '新しい方針を発表した。', exampleReading: 'あたらしいほうしんをはっぴょうした。', exampleMeaning: '发布了新方针。' },
+  { id: 'n2-010', word: '対応', reading: 'たいおう', meaning: '对应，处理', partOfSpeech: '名词/动词', level: 'N2', example: 'クレームに対応する。', exampleReading: 'くれーむにたいおうする。', exampleMeaning: '处理投诉。' },
+  { id: 'n2-011', word: '関する', reading: 'かんする', meaning: '关于', partOfSpeech: '动词', level: 'N2', example: 'この問題に関する報告書。', exampleReading: 'このもんだいにかんするほうこくしょ。', exampleMeaning: '关于这个问题的报告。' },
+  { id: 'n2-012', word: '従う', reading: 'したがう', meaning: '遵从', partOfSpeech: '动词', level: 'N2', example: '指示に従ってください。', exampleReading: 'しじにしたがってください。', exampleMeaning: '请遵从指示。' },
+  { id: 'n2-013', word: '含む', reading: 'ふくむ', meaning: '包含', partOfSpeech: '动词', level: 'N2', example: 'この料理は魚を含んでいる。', exampleReading: 'このりょうりはさかなをふくんでいる。', exampleMeaning: '这道菜含有鱼。' },
+  { id: 'n2-014', word: '減少', reading: 'げんしょう', meaning: '减少', partOfSpeech: '名词/动词', level: 'N2', example: '人口が減少している。', exampleReading: 'じんこうがげんしょうしている。', exampleMeaning: '人口在减少。' },
+  { id: 'n2-015', word: '増加', reading: 'ぞうか', meaning: '增加', partOfSpeech: '名词/动词', level: 'N2', example: '需要が増加している。', exampleReading: 'じゅようがぞうかしている。', exampleMeaning: '需求在增加。' },
 ];
 
 const n1Words: Word[] = [
@@ -86,6 +128,13 @@ const n1Words: Word[] = [
   { id: 'n1-006', word: '唆す', reading: 'そそのかす', meaning: '唆使', partOfSpeech: '动词', level: 'N1', example: '悪事を唆される。', exampleReading: 'あくじをそそのかされる。', exampleMeaning: '被唆使做坏事。' },
   { id: 'n1-007', word: '不祥事', reading: 'ふしょうじ', meaning: '丑闻，不当事件', partOfSpeech: '名词', level: 'N1', example: '企業の不祥事が発覚した。', exampleReading: 'きぎょうのふしょうじがはっかくした。', exampleMeaning: '企业的丑闻被曝光了。' },
   { id: 'n1-008', word: '逼迫', reading: 'ひっぱく', meaning: '紧迫，拮据', partOfSpeech: '名词/动词', level: 'N1', example: '財政が逼迫している。', exampleReading: 'ざいせいがひっぱくしている。', exampleMeaning: '财政拮据。' },
+  { id: 'n1-009', word: '逸脱', reading: 'いつだつ', meaning: '偏离', partOfSpeech: '名词/动词', level: 'N1', example: '規範から逸脱する行為。', exampleReading: 'きはんからいつだつするこうい。', exampleMeaning: '偏离规范的行为。' },
+  { id: 'n1-010', word: '提唱', reading: 'ていしょう', meaning: '提倡', partOfSpeech: '名词/动词', level: 'N1', example: '環境保護を提唱する。', exampleReading: 'かんきょうほごをていしょうする。', exampleMeaning: '提倡环境保护。' },
+  { id: 'n1-011', word: '標榜', reading: 'ひょうぼう', meaning: '标榜', partOfSpeech: '名词/动词', level: 'N1', example: '自由を標榜する政党。', exampleReading: 'じゆうをひょうぼうするせいとう。', exampleMeaning: '标榜自由的政党。' },
+  { id: 'n1-012', word: '繁盛', reading: 'はんじょう', meaning: '繁荣，生意兴隆', partOfSpeech: '名词/动词', level: 'N1', example: 'その店は大繁盛だ。', exampleReading: 'そのみせはだいはんじょうだ。', exampleMeaning: '那家店生意非常兴隆。' },
+  { id: 'n1-013', word: '暗黙', reading: 'あんもく', meaning: '默认，默契', partOfSpeech: '名词', level: 'N1', example: '暗黙の了解がある。', exampleReading: 'あんもくのりょうかいがある。', exampleMeaning: '有默契的共识。' },
+  { id: 'n1-014', word: '萎縮', reading: 'いしゅく', meaning: '萎缩', partOfSpeech: '名词/动词', level: 'N1', example: '経済が萎縮している。', exampleReading: 'けいざいがいしゅくしている。', exampleMeaning: '经济在萎缩。' },
+  { id: 'n1-015', word: '楽観', reading: 'らっかん', meaning: '乐观', partOfSpeech: '名词', level: 'N1', example: '楽観的な見通し。', exampleReading: 'らっかんてきなみとおし。', exampleMeaning: '乐观的展望。' },
 ];
 
 export const vocabularyByLevel: Record<JLPTLevel, Word[]> = {
