@@ -9,6 +9,8 @@ const path = require('path');
 
 // Load pre-curated topic-specific word lists
 const topicWordLists = require('./topic-words.cjs');
+// Load Chinese translations for words
+const wordTranslations = require('./word-translations.cjs');
 
 // Load vocabulary data to extract words by topic
 const vocabPath = path.join(__dirname, '..', 'src', 'data', 'vocabulary-data.ts');
@@ -358,7 +360,7 @@ function generateTranslation(japanese, words) {
 
 // ─── Main Generation ───────────────────────────────────────────────────
 
-// Build a lookup of word -> reading from JMdict
+// Build a lookup of word -> reading from JMdict, use Chinese translation
 const wordReadingMap = {};
 const wordMeaningMap = {};
 const wordLevelMap = {};
@@ -368,7 +370,8 @@ for (const level of ['N5', 'N4', 'N3', 'N2', 'N1']) {
   for (const w of (wordsByLevel[level] || [])) {
     if (!wordReadingMap[w.word]) {
       wordReadingMap[w.word] = w.reading;
-      wordMeaningMap[w.word] = w.meaning.split('；')[0];
+      // Use Chinese translation if available, otherwise use JMdict meaning
+      wordMeaningMap[w.word] = wordTranslations[w.word] || w.meaning.split('；')[0];
       wordLevelMap[w.word] = level;
       wordPosMap[w.word] = w.pos;
     }
