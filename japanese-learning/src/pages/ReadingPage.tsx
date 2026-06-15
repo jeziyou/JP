@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { articles, getRandomArticle, getArticlesByCount } from '../data/reading-data';
 import type { Article } from '../data/reading-data';
+import FuriganaText from '../components/FuriganaText';
 
 export default function ReadingPage() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -84,9 +85,10 @@ export default function ReadingPage() {
               </span>
             </div>
 
-            <div className="text-lg font-serif text-ink leading-relaxed mb-6 whitespace-pre-line">
-              {selectedArticle.content}
-            </div>
+            <FuriganaText
+              text={selectedArticle.content}
+              className="text-lg font-serif text-ink leading-relaxed mb-6"
+            />
 
             {/* Translation toggle */}
             <div className="border-t border-border pt-4">

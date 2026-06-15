@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { vocabularyByLevel, type Word, type JLPTLevel } from '../data/vocabulary-data';
 import { searchJisho, searchJLPTVocab, fetchJLPTVocab } from '../services/api';
+import FuriganaText from '../components/FuriganaText';
 
 const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
@@ -336,9 +337,10 @@ export default function VocabularyPage() {
               </div>
               {word.example && (
                 <div className="mt-3 pt-3 border-t border-border">
-                  <p className="text-sm text-ink-light font-sans">
-                    {word.example}
-                  </p>
+                  <FuriganaText
+                    text={word.example}
+                    className="text-sm text-ink-light font-serif"
+                  />
                   <p className="text-xs text-ink-muted font-sans mt-1">
                     {word.exampleReading}{word.exampleMeaning ? ` — ${word.exampleMeaning}` : ''}
                   </p>

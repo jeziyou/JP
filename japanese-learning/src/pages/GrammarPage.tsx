@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { grammarByLevel, type JLPTLevel } from '../data/grammar-data';
+import FuriganaText from '../components/FuriganaText';
 
 const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
@@ -93,9 +94,10 @@ export default function GrammarPage() {
                       key={idx}
                       className="bg-paper-dark rounded-lg p-4 border border-border"
                     >
-                      <p className="text-base font-serif text-ink mb-1">
-                        {ex.japanese}
-                      </p>
+                      <FuriganaText
+                        text={ex.japanese}
+                        className="text-base font-serif text-ink font-bold mb-1"
+                      />
                       <p className="text-sm text-ink-light font-sans mb-1">
                         {ex.reading}
                       </p>
