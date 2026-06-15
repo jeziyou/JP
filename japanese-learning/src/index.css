@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  --color-*: initial;
+
+  --color-ink: #1a1520;
+  --color-ink-light: #6b6375;
+  --color-ink-muted: #9d97a8;
+
+  --color-paper: #faf7f2;
+  --color-paper-light: #fdfcf9;
+  --color-paper-dark: #f0ebe0;
+
+  --color-indigo-deep: #2d2b55;
+  --color-indigo-mid: #4a4780;
+  --color-indigo-soft: #7673a8;
+
+  --color-vermillion: #d1473b;
+  --color-vermillion-hover: #b83a2f;
+  --color-vermillion-soft: #fce8e5;
+
+  --color-kinari: #f5f0e3;
+  --color-gold: #c49a2c;
+  --color-gold-soft: #fdf3d1;
+
+  --color-bamboo: #6b8e4e;
+  --color-bamboo-soft: #edf4e6;
+  --color-bamboo-dark: #4a6335;
+
+  --color-stone: #8b8682;
+  --color-stone-light: #e8e3dc;
+  --color-stone-dark: #524e4b;
+
+  --color-border: #e5e0d8;
+  --color-border-light: #f0ece5;
+
+  --font-sans: "Noto Sans SC", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+  --font-serif: "Noto Serif JP", "Noto Serif SC", "Hiragino Mincho Pro", "Yu Mincho", serif;
+  --font-display: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif;
+
+  --animate-slide-up: slide-up 0.4s ease-out;
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-scale-in: scale-in 0.3s ease-out;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+
+  ::selection {
+    background: var(--color-vermillion-soft);
+    color: var(--color-ink);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
