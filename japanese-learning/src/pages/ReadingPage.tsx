@@ -1,23 +1,82 @@
 import { useState, useMemo, useCallback } from 'react';
 import { articles, getRandomArticle, getArticlesByCount } from '../data/reading-data';
 import type { Article } from '../data/reading-data';
+import { matchaArticles } from '../data/matcha-articles';
+import type { MatchaArticle } from '../data/matcha-articles';
 import FuriganaText from '../components/FuriganaText';
 import SelectionPopup from '../components/SelectionPopup';
 import { buildMeaning } from '../utils/translations';
 import { translateToChinese, isPlaceholderTranslation } from '../services/translate-service';
 
+// 统一文章类型
+type UnifiedArticle = Article & { category?: string; level?: string };
+
+// 将 MATCHA 文章转换为统一格式
+function toUnifiedArticle(ma: MatchaArticle): UnifiedArticle {
+  return {
+    id: ma.id,
+    title: ma.title,
+    source: ma.source,
+    date: ma.date,
+    content: ma.content,
+    translation: ma.translation,
+    vocabulary: ma.vocabulary,
+    category: ma.category,
+    level: ma.level,
+  };
+}
+
+// 将原始文章转换为统一格式
+function toUnifiedFromArticle(a: Article): UnifiedArticle {
+  return {
+    ...a,
+    category: a.source.includes('N5') ? '日常' : a.source.includes('N4') ? '日常' : a.source.includes('N3') ? '中级' : a.source.includes('N2') ? '上级' : a.source.includes('N1') ? '上级' : '日常',
+    level: a.source.match(/N([1-5])/)?.[1] ? `N${a.source.match(/N([1-5])/)?.[1]}` : undefined,
+  };
+}
+
+const ALL_CATEGORIES = ['全部', '文化', '旅行', '美食', '交通', '季節', '生活', '日常', '中级', '上级'];
+
 export default function ReadingPage() {
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [selectedArticle, setSelectedArticle] = useState<UnifiedArticle | null>(null);
   const [showTranslation, setShowTranslation] = useState(false);
-  const [displayCount, setDisplayCount] = useState(6);
+  const [displayCount, setDisplayCount] = useState(12);
   const [refreshKey, setRefreshKey] = useState(0);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState('全部');
+  const [sourceFilter, setSourceFilter] = useState<'all' | 'matcha' | 'original'>('all');
+
+  // 合并所有文章
+  const allArticles = useMemo(() => {
+    const matchaUnified = matchaArticles.map(toUnifiedArticle);
+    const originalUnified = articles.map(toUnifiedFromArticle);
+    return [...matchaUnified, ...originalUnified];
+  }, []);
+
+  // 筛选文章
+  const filteredArticles = useMemo(() => {
+    let result = allArticles;
+
+    // 按来源筛选
+    if (sourceFilter === 'matcha') {
+      result = result.filter(a => a.id.startsWith('matcha'));
+    } else if (sourceFilter === 'original') {
+      result = result.filter(a => !a.id.startsWith('matcha'));
+    }
+
+    // 按分类筛选
+    if (categoryFilter !== '全部') {
+      result = result.filter(a => a.category === categoryFilter);
+    }
+
+    return result;
+  }, [allArticles, sourceFilter, categoryFilter]);
 
   const displayedArticles = useMemo(
-    () => getArticlesByCount(displayCount),
-    [displayCount, refreshKey],
+    () => filteredArticles.slice(0, displayCount),
+    [filteredArticles, displayCount, refreshKey],
   );
 
   const handleRefresh = () => {
@@ -27,10 +86,10 @@ export default function ReadingPage() {
   };
 
   const handleLoadMore = () => {
-    setDisplayCount((prev) => Math.min(prev + 5, articles.length));
+    setDisplayCount((prev) => Math.min(prev + 8, filteredArticles.length));
   };
 
-  const handleArticleClick = (article: Article) => {
+  const handleArticleClick = (article: UnifiedArticle) => {
     setSelectedArticle(article);
     setShowTranslation(false);
     setTranslatedText(null);
@@ -45,25 +104,27 @@ export default function ReadingPage() {
   };
 
   const handleRandom = () => {
-    const article = getRandomArticle();
+    const pool = sourceFilter === 'matcha'
+      ? matchaArticles.map(toUnifiedArticle)
+      : sourceFilter === 'original'
+        ? articles.map(toUnifiedFromArticle)
+        : allArticles;
+    const article = pool[Math.floor(Math.random() * pool.length)];
     setSelectedArticle(article);
     setShowTranslation(false);
     setTranslatedText(null);
     setTranslationError(null);
   };
 
-  // Handle translation: use API if current translation is placeholder
   const handleShowTranslation = useCallback(async () => {
     if (!selectedArticle) return;
-    
-    // Check if current translation is a placeholder
+
     const needsTranslation = isPlaceholderTranslation(selectedArticle.translation);
-    
+
     if (needsTranslation && !translatedText) {
-      // Need to translate via API
       setIsTranslating(true);
       setTranslationError(null);
-      
+
       try {
         const result = await translateToChinese(selectedArticle.content);
         if (result) {
@@ -71,17 +132,15 @@ export default function ReadingPage() {
           setShowTranslation(true);
         } else {
           setTranslationError('翻译失败，请稍后重试');
-          // Still show the placeholder translation
           setShowTranslation(true);
         }
-      } catch (err) {
+      } catch {
         setTranslationError('翻译服务暂时不可用');
         setShowTranslation(true);
       } finally {
         setIsTranslating(false);
       }
     } else {
-      // Toggle translation visibility
       setShowTranslation(!showTranslation);
     }
   }, [selectedArticle, translatedText, showTranslation]);
@@ -93,11 +152,73 @@ export default function ReadingPage() {
           読解練習
         </h2>
         <p className="text-ink-light font-sans">
-          精选15篇文章，覆盖N5~N1各级别，支持译文对照与重点词汇学习
+          精选文章 + MATCHA简易日语，覆盖N5~N1各级别，支持译文对照与重点词汇学习
         </p>
       </div>
 
-      {/* Loading state */}
+      {/* Filters */}
+      {!selectedArticle && (
+        <div className="space-y-3 mb-6">
+          {/* Source filter */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setSourceFilter('all'); setCategoryFilter('全部'); setDisplayCount(12); }}
+              className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
+                sourceFilter === 'all'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-white border border-border text-ink hover:bg-paper-dark'
+              }`}
+            >
+              全部文章
+            </button>
+            <button
+              onClick={() => { setSourceFilter('matcha'); setCategoryFilter('全部'); setDisplayCount(12); }}
+              className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
+                sourceFilter === 'matcha'
+                  ? 'bg-accent text-white shadow-md'
+                  : 'bg-white border border-border text-ink hover:bg-paper-dark'
+              }`}
+            >
+              MATCHA 簡易日本語
+            </button>
+            <button
+              onClick={() => { setSourceFilter('original'); setCategoryFilter('全部'); setDisplayCount(12); }}
+              className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
+                sourceFilter === 'original'
+                  ? 'bg-gold text-white shadow-md'
+                  : 'bg-white border border-border text-ink hover:bg-paper-dark'
+              }`}
+            >
+              基础読解
+            </button>
+          </div>
+
+          {/* Category filter (only for matcha) */}
+          {sourceFilter === 'matcha' && (
+            <div className="flex flex-wrap gap-2">
+              {ALL_CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => { setCategoryFilter(cat); setDisplayCount(12); }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium font-sans transition-all duration-200 ${
+                    categoryFilter === cat
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-white border border-border text-ink hover:bg-paper-dark'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <p className="text-xs text-ink-muted font-sans">
+            共 {filteredArticles.length} 篇文章，显示 {displayedArticles.length} 篇
+          </p>
+        </div>
+      )}
+
+      {/* Back button */}
       {selectedArticle && (
         <button
           onClick={handleBack}
@@ -126,6 +247,16 @@ export default function ReadingPage() {
               <span className="px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
                 {selectedArticle.source}
               </span>
+              {selectedArticle.category && (
+                <span className="px-2 py-0.5 bg-accent-soft text-accent text-xs rounded font-sans">
+                  {selectedArticle.category}
+                </span>
+              )}
+              {selectedArticle.level && (
+                <span className="px-2 py-0.5 bg-gold-soft text-gold text-xs rounded font-sans">
+                  {selectedArticle.level}
+                </span>
+              )}
               <span className="text-xs text-ink-muted font-sans">
                 {selectedArticle.date}
               </span>
@@ -150,12 +281,12 @@ export default function ReadingPage() {
                 className="flex items-center gap-2 text-sm font-sans text-primary hover:text-primary-light transition-colors disabled:opacity-50"
               >
                 <span>
-                  {isTranslating 
-                    ? '翻译中...' 
-                    : showTranslation 
-                      ? '隐藏译文' 
-                      : isPlaceholderTranslation(selectedArticle.translation) 
-                        ? '点击翻译全文' 
+                  {isTranslating
+                    ? '翻译中...'
+                    : showTranslation
+                      ? '隐藏译文'
+                      : isPlaceholderTranslation(selectedArticle.translation)
+                        ? '点击翻译全文'
                         : '显示译文'}
                 </span>
                 {!isTranslating && (
@@ -219,9 +350,6 @@ export default function ReadingPage() {
       {!selectedArticle && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs text-ink-muted font-sans">
-              显示 {displayedArticles.length} / {articles.length} 篇文章
-            </p>
             <div className="flex gap-2">
               <button
                 onClick={handleRefresh}
@@ -229,7 +357,7 @@ export default function ReadingPage() {
               >
                 換一批
               </button>
-              {displayCount < articles.length && (
+              {displayCount < filteredArticles.length && (
                 <button
                   onClick={handleLoadMore}
                   className="px-4 py-2 rounded-lg border border-border text-ink-light text-xs font-sans hover:bg-paper-dark transition-colors"
@@ -252,10 +380,20 @@ export default function ReadingPage() {
                     <h3 className="text-lg font-bold text-ink font-serif group-hover:text-primary transition-colors">
                       {article.title}
                     </h3>
-                    <div className="flex items-center gap-3 mt-2">
+                    <div className="flex items-center gap-3 mt-2 flex-wrap">
                       <span className="px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
                         {article.source}
                       </span>
+                      {article.category && (
+                        <span className="px-2 py-0.5 bg-accent-soft text-accent text-xs rounded font-sans">
+                          {article.category}
+                        </span>
+                      )}
+                      {article.level && (
+                        <span className="px-2 py-0.5 bg-gold-soft text-gold text-xs rounded font-sans">
+                          {article.level}
+                        </span>
+                      )}
                       <span className="text-xs text-ink-muted font-sans">
                         {article.date}
                       </span>
@@ -271,6 +409,13 @@ export default function ReadingPage() {
               </button>
             ))}
           </div>
+
+          {displayedArticles.length === 0 && (
+            <div className="text-center py-16 text-ink-muted font-sans">
+              <p className="text-4xl mb-4">📚</p>
+              <p>该分类下暂无文章</p>
+            </div>
+          )}
         </div>
       )}
     </div>
