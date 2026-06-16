@@ -11,7 +11,7 @@ const proxyAgent = httpsProxy ? new HttpsProxyAgent(httpsProxy) : undefined
 function jishoSearchMiddleware(
   req: IncomingMessage,
   res: ServerResponse,
-  next: () => void,
+  _next: () => void,
 ) {
   const url = new URL(req.url!, `http://${req.headers.host}`)
   const encoded = url.searchParams.get('q')
@@ -25,7 +25,7 @@ function jishoSearchMiddleware(
   const keyword = Buffer.from(encoded, 'base64').toString('utf-8')
   const jishoUrl = `https://jisho.org/api/v1/search/words?keyword=${encodeURIComponent(keyword)}`
 
-  fetch(jishoUrl, { agent: proxyAgent })
+  fetch(jishoUrl)
     .then((jishoRes) => {
       res.statusCode = jishoRes.status
       res.setHeader('Content-Type', 'application/json')
