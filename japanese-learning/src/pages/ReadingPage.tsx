@@ -40,7 +40,7 @@ const ALL_CATEGORIES = ['全部', '文化', '旅行', '美食', '交通', '季�
 export default function ReadingPage() {
   const [selectedArticle, setSelectedArticle] = useState<UnifiedArticle | null>(null);
   const [showTranslation, setShowTranslation] = useState(false);
-  const [displayCount, setDisplayCount] = useState(12);
+  const [displayCount, setDisplayCount] = useState(100);
   const [refreshKey, setRefreshKey] = useState(0);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
@@ -86,7 +86,7 @@ export default function ReadingPage() {
   };
 
   const handleLoadMore = () => {
-    setDisplayCount((prev) => Math.min(prev + 8, filteredArticles.length));
+    setDisplayCount((prev) => Math.min(prev + 50, filteredArticles.length));
   };
 
   const handleArticleClick = (article: UnifiedArticle) => {
@@ -162,7 +162,7 @@ export default function ReadingPage() {
           {/* Source filter */}
           <div className="flex gap-2">
             <button
-              onClick={() => { setSourceFilter('all'); setCategoryFilter('全部'); setDisplayCount(12); }}
+              onClick={() => { setSourceFilter('all'); setCategoryFilter('全部'); setDisplayCount(100); }}
               className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
                 sourceFilter === 'all'
                   ? 'bg-primary text-white shadow-md'
@@ -172,7 +172,7 @@ export default function ReadingPage() {
               全部文章
             </button>
             <button
-              onClick={() => { setSourceFilter('matcha'); setCategoryFilter('全部'); setDisplayCount(12); }}
+              onClick={() => { setSourceFilter('matcha'); setCategoryFilter('全部'); setDisplayCount(100); }}
               className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
                 sourceFilter === 'matcha'
                   ? 'bg-accent text-white shadow-md'
@@ -182,7 +182,7 @@ export default function ReadingPage() {
               MATCHA 簡易日本語
             </button>
             <button
-              onClick={() => { setSourceFilter('original'); setCategoryFilter('全部'); setDisplayCount(12); }}
+              onClick={() => { setSourceFilter('original'); setCategoryFilter('全部'); setDisplayCount(100); }}
               className={`px-4 py-2 rounded-lg text-sm font-bold font-sans transition-all duration-200 ${
                 sourceFilter === 'original'
                   ? 'bg-gold text-white shadow-md'
@@ -199,7 +199,7 @@ export default function ReadingPage() {
               {ALL_CATEGORIES.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => { setCategoryFilter(cat); setDisplayCount(12); }}
+                  onClick={() => { setCategoryFilter(cat); setDisplayCount(100); }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium font-sans transition-all duration-200 ${
                     categoryFilter === cat
                       ? 'bg-primary text-white shadow-sm'
@@ -362,7 +362,7 @@ export default function ReadingPage() {
                   onClick={handleLoadMore}
                   className="px-4 py-2 rounded-lg border border-border text-ink-light text-xs font-sans hover:bg-paper-dark transition-colors"
                 >
-                  加载更多
+                  显示更多（{displayCount} / {filteredArticles.length}）
                 </button>
               )}
             </div>
