@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { searchVocabulary, type JMDictWord } from '../utils/vocab-search';
 import { buildMeaning } from '../utils/translations';
+import { getExamplesForWord } from '../data/vocab-examples';
 
 interface SelectionPopupProps {
   enabled: boolean;
@@ -120,30 +121,45 @@ export default function SelectionPopup({ enabled }: SelectionPopupProps) {
       )}
 
       {!popup.loading && popup.results.length > 0 && (
-        <div className="space-y-2 mt-2">
-          {popup.results.map((w) => (
-            <div
-              key={`${w.word}-${w.reading}`}
-              className="p-2 bg-paper-dark rounded-lg border border-border"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-base font-serif text-ink font-bold">
-                  {w.word}
-                </span>
-                <span className="text-xs text-ink-light font-sans">
-                  {w.reading}
-                </span>
-                {w.partOfSpeech && (
-                  <span className="text-xs px-1.5 py-0.5 bg-gold-soft text-gold rounded font-sans">
-                    {w.partOfSpeech}
+        <div className="space-y-3 mt-2">
+          {popup.results.map((w) => {
+            const examples = getExamplesForWord(w.word);
+            return (
+              <div
+                key={`${w.word}-${w.reading}`}
+                className="p-2 bg-paper-dark rounded-lg border border-border"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-serif text-ink font-bold">
+                    {w.word}
                   </span>
+                  <span className="text-xs text-ink-light font-sans">
+                    {w.reading}
+                  </span>
+                  {w.partOfSpeech && (
+                    <span className="text-xs px-1.5 py-0.5 bg-gold-soft text-gold rounded font-sans">
+                      {w.partOfSpeech}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-ink-light font-sans mt-1">
+                  {w.meaning}
+                </p>
+                {examples.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-border/40">
+                    <p className="text-xs text-ink-muted font-sans mb-1.5">📝 例句</p>
+                    {examples.slice(0, 1).map((ex, eidx) => (
+                      <div key={eidx}>
+                        <p className="text-xs font-serif text-ink leading-relaxed">{ex.japanese}</p>
+                        {ex.reading && <p className="text-xs text-ink-light/70 font-sans mt-0.5">{ex.reading}</p>}
+                        {ex.chinese && <p className="text-xs text-ink-muted font-sans mt-0.5">{ex.chinese}</p>}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
-              <p className="text-xs text-ink-light font-sans mt-1">
-                {w.meaning}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

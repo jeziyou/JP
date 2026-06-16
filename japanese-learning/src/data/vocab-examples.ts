@@ -1,0 +1,637 @@
+// 日语单词例句库 - 用单词 (key) 查找例句数组
+
+export interface VocabExample {
+  japanese: string;
+  reading?: string;
+  chinese?: string;
+  english?: string;
+}
+
+export const vocabExamples: Record<string, VocabExample[]> = {
+  // --- 动词 ---
+  '食べる': [
+    { japanese: '朝ご飯を食べます。', reading: 'あさごはんをたべます。', chinese: '我吃早饭。', english: 'I eat breakfast.' },
+    { japanese: '昨日お寿司を食べた。', reading: 'きのうおすしをたべた。', chinese: '昨天吃了寿司。', english: 'I ate sushi yesterday.' },
+  ],
+  '飲む': [
+    { japanese: '毎朝コーヒーを飲みます。', reading: 'まいあさコーヒーをのみます。', chinese: '我每天早上喝咖啡。', english: 'I drink coffee every morning.' },
+    { japanese: '水を飲んでください。', reading: 'みずをのんでください。', chinese: '请喝水。', english: 'Please drink water.' },
+  ],
+  '行く': [
+    { japanese: '学校に行きます。', reading: 'がっこうにいきます。', chinese: '我去学校。', english: 'I go to school.' },
+    { japanese: '日本に行きたいです。', reading: 'にほんにいきたいです。', chinese: '我想去日本。', english: 'I want to go to Japan.' },
+  ],
+  '来る': [
+    { japanese: '友達が来ました。', reading: 'ともだちがきました。', chinese: '朋友来了。', english: 'My friend came.' },
+  ],
+  '見る': [
+    { japanese: 'テレビを見ます。', reading: 'テレビをみます。', chinese: '我看电视。', english: 'I watch TV.' },
+    { japanese: '映画を見たいです。', reading: 'えいがをみたいです。', chinese: '我想看电影。', english: 'I want to watch a movie.' },
+  ],
+  '聞く': [
+    { japanese: '音楽を聞きます。', reading: 'おんがくをききます。', chinese: '我听音乐。', english: 'I listen to music.' },
+  ],
+  '話す': [
+    { japanese: '日本語で話しましょう。', reading: 'にほんごではなしましょう。', chinese: '我们用日语说话吧。', english: "Let's speak in Japanese." },
+  ],
+  '読む': [
+    { japanese: '毎日本を読みます。', reading: 'まいにちほんをよみます。', chinese: '我每天看书。', english: 'I read books every day.' },
+    { japanese: '新聞を読んでいます。', reading: 'しんぶんをよんでいます。', chinese: '我在看报纸。', english: 'I am reading the newspaper.' },
+  ],
+  '書く': [
+    { japanese: '手紙を書きます。', reading: 'てがみをかきます。', chinese: '我写信。', english: 'I write a letter.' },
+  ],
+  '買う': [
+    { japanese: '本屋で本を買います。', reading: 'ほんやでほんをかいます。', chinese: '我在书店买书。', english: 'I buy books at the bookstore.' },
+  ],
+  '作る': [
+    { japanese: '料理を作ります。', reading: 'りょうりをつくります。', chinese: '我做饭。', english: 'I cook food.' },
+  ],
+  'する': [
+    { japanese: '勉強をします。', reading: 'べんきょうをします。', chinese: '我学习。', english: 'I study.' },
+  ],
+  '勉強する': [
+    { japanese: '毎日日本語を勉強しています。', reading: 'まいにちにほんごをべんきょうしています。', chinese: '我每天在学习日语。', english: 'I study Japanese every day.' },
+  ],
+  '働く': [
+    { japanese: '会社で働いています。', reading: 'かいしゃではたらいています。', chinese: '我在公司工作。', english: 'I work at a company.' },
+  ],
+  '休む': [
+    { japanese: '日曜日は休みます。', reading: 'にちようびはやすみます。', chinese: '周日我休息。', english: 'I rest on Sunday.' },
+    { japanese: '少し休みましょう。', reading: 'すこしやすみましょう。', chinese: '休息一下吧。', english: "Let's rest a bit." },
+  ],
+  '起きる': [
+    { japanese: '毎朝六時に起きます。', reading: 'まいあさろくじにおきます。', chinese: '我每天早上6点起床。', english: 'I wake up at 6 every morning.' },
+  ],
+  '寝る': [
+    { japanese: '十時に寝ます。', reading: 'じゅうじにねます。', chinese: '我10点睡觉。', english: 'I go to bed at 10.' },
+  ],
+  '住む': [
+    { japanese: '東京に住んでいます。', reading: 'とうきょうにすんでいます。', chinese: '我住在东京。', english: 'I live in Tokyo.' },
+  ],
+  '会う': [
+    { japanese: '友達に会います。', reading: 'ともだちにあいます。', chinese: '我见朋友。', english: 'I meet my friend.' },
+  ],
+  '分かる': [
+    { japanese: '分かりました。', reading: 'わかりました。', chinese: '我明白了。', english: 'I understand.' },
+    { japanese: '意味が分かりません。', reading: 'いみがわかりません。', chinese: '我不明白意思。', english: "I don't understand the meaning." },
+  ],
+  '思う': [
+    { japanese: 'そう思います。', reading: 'そうおもいます。', chinese: '我也这么想。', english: 'I think so too.' },
+  ],
+  '使う': [
+    { japanese: 'パソコンを使います。', reading: 'パソコンをつかいます。', chinese: '我使用电脑。', english: 'I use a computer.' },
+  ],
+  '歩く': [
+    { japanese: '駅まで歩きます。', reading: 'えきまであるきます。', chinese: '我走到车站。', english: 'I walk to the station.' },
+  ],
+  '走る': [
+    { japanese: '公園を走ります。', reading: 'こうえんをはしります。', chinese: '我在公园跑步。', english: 'I run in the park.' },
+  ],
+  '乗る': [
+    { japanese: '電車に乗ります。', reading: 'でんしゃにのります。', chinese: '我坐电车。', english: 'I take the train.' },
+  ],
+  '待つ': [
+    { japanese: 'ここで待ってください。', reading: 'ここでまってください。', chinese: '请在这里等。', english: 'Please wait here.' },
+  ],
+  '洗う': [
+    { japanese: '皿を洗います。', reading: 'さらをあらいます。', chinese: '我洗盘子。', english: 'I wash the dishes.' },
+  ],
+  '掃除する': [
+    { japanese: '毎週部屋を掃除します。', reading: 'まいしゅうへやをそうじします。', chinese: '我每周打扫房间。', english: 'I clean my room every week.' },
+  ],
+  '入る': [
+    { japanese: '部屋に入ります。', reading: 'へやにはいります。', chinese: '我进入房间。', english: 'I enter the room.' },
+  ],
+  '出る': [
+    { japanese: '家を出ます。', reading: 'いえをでます。', chinese: '我出门。', english: 'I leave the house.' },
+  ],
+  '開ける': [
+    { japanese: '窓を開けてください。', reading: 'まどをあけてください。', chinese: '请打开窗户。', english: 'Please open the window.' },
+  ],
+  '閉める': [
+    { japanese: 'ドアを閉めてください。', reading: 'ドアをしめてください。', chinese: '请关上门。', english: 'Please close the door.' },
+  ],
+  '忘れる': [
+    { japanese: '鍵を忘れました。', reading: 'かぎをわすれました。', chinese: '我忘记带钥匙了。', english: 'I forgot my key.' },
+  ],
+  '覚える': [
+    { japanese: '新しい単語を覚えます。', reading: 'あたらしいたんごをおぼえます。', chinese: '我记新单词。', english: 'I memorize new vocabulary.' },
+  ],
+  '考える': [
+    { japanese: '少し考えます。', reading: 'すこしかんがえます。', chinese: '我想想看。', english: 'Let me think about it.' },
+  ],
+  '教える': [
+    { japanese: '先生が日本語を教えてくれます。', reading: 'せんせいがにほんごをおしえてくれます。', chinese: '老师教我们日语。', english: 'The teacher teaches us Japanese.' },
+  ],
+  '習う': [
+    { japanese: 'ピアノを習っています。', reading: 'ピアノをならっています。', chinese: '我在学钢琴。', english: "I'm learning piano." },
+  ],
+  '遊ぶ': [
+    { japanese: '子供たちが遊んでいます。', reading: 'こどもたちがあそんでいます。', chinese: '孩子们在玩。', english: 'The children are playing.' },
+  ],
+  '旅行する': [
+    { japanese: '来月日本に旅行します。', reading: 'らいげつにほんにりょこうします。', chinese: '下个月我去日本旅行。', english: 'I will travel to Japan next month.' },
+  ],
+  '留学する': [
+    { japanese: '東京に留学したいです。', reading: 'とうきょうにりゅうがくしたいです。', chinese: '我想去东京留学。', english: 'I want to study abroad in Tokyo.' },
+  ],
+  '卒業する': [
+    { japanese: '大学を卒業しました。', reading: 'だいがくをそつぎょうしました。', chinese: '我从大学毕业了。', english: 'I graduated from university.' },
+  ],
+  '撮る': [
+    { japanese: '写真を撮りましょうか。', reading: 'しゃしんをとりましょうか。', chinese: '拍张照片吧？', english: 'Shall we take a photo?' },
+  ],
+  '泳ぐ': [
+    { japanese: '夏に海で泳ぎます。', reading: 'なつにうみでおよぎます。', chinese: '夏天我在海里游泳。', english: 'I swim in the sea in summer.' },
+  ],
+  '歌う': [
+    { japanese: 'カラオケで歌いましょう。', reading: 'カラオケでうたいましょう。', chinese: '我们去唱卡拉OK吧。', english: "Let's sing karaoke." },
+  ],
+
+  // --- 形容词 ---
+  'いい': [
+    { japanese: 'これはいい考えですね。', reading: 'これはいいかんがえですね。', chinese: '这是个好主意呢。', english: "That's a good idea." },
+  ],
+  '悪い': [
+    { japanese: '悪いですね。', reading: 'わるいですね。', chinese: '太糟糕了。', english: 'That is bad.' },
+  ],
+  '大きい': [
+    { japanese: '大きい箱ですね。', reading: 'おおきいはこですね。', chinese: '真是个大箱子呢。', english: "It's a big box, isn't it?" },
+  ],
+  '小さい': [
+    { japanese: '小さい犬がいます。', reading: 'ちいさいいぬがいます。', chinese: '有一只小狗。', english: 'There is a small dog.' },
+  ],
+  '新しい': [
+    { japanese: '新しい靴を買いました。', reading: 'あたらしいくつをかいました。', chinese: '我买了新鞋子。', english: 'I bought new shoes.' },
+  ],
+  '古い': [
+    { japanese: '古い映画が好きです。', reading: 'ふるいえいががすきです。', chinese: '我喜欢老电影。', english: 'I like old movies.' },
+  ],
+  '多い': [
+    { japanese: '人が多いですね。', reading: 'ひとがおおいですね。', chinese: '人真多呢。', english: 'There are many people, aren\'t there?' },
+  ],
+  '少ない': [
+    { japanese: '予算が少ないです。', reading: 'よさんがすくないです。', chinese: '预算很少。', english: 'The budget is small.' },
+  ],
+  '長い': [
+    { japanese: '長い映画ですね。', reading: 'ながいえいがですね。', chinese: '真是部很长的电影呢。', english: "It's a long movie, isn't it?" },
+  ],
+  '短い': [
+    { japanese: '短い時間でできます。', reading: 'みじかいじかんでできます。', chinese: '短时间内可以完成。', english: 'It can be done in a short time.' },
+  ],
+  '高い': [
+    { japanese: 'このビルは高いです。', reading: 'このビルはたかいです。', chinese: '这栋楼很高。', english: 'This building is tall.' },
+  ],
+  '低い': [
+    { japanese: '温度が低いです。', reading: 'おんどがひくいです。', chinese: '温度很低。', english: 'The temperature is low.' },
+  ],
+  '安い': [
+    { japanese: 'この店は安いです。', reading: 'このみせはやすいです。', chinese: '这家店便宜。', english: 'This shop is cheap.' },
+  ],
+  '重い': [
+    { japanese: '荷物が重いです。', reading: 'にもつがおもいです。', chinese: '行李很重。', english: 'The luggage is heavy.' },
+  ],
+  '軽い': [
+    { japanese: 'このパソコンは軽いです。', reading: 'このパソコンはかるいです。', chinese: '这台电脑很轻。', english: 'This computer is light.' },
+  ],
+  '暑い': [
+    { japanese: '今日は暑いですね。', reading: 'きょうはあついですね。', chinese: '今天真热呢。', english: "It's hot today, isn't it?" },
+  ],
+  '寒い': [
+    { japanese: '冬は寒いです。', reading: 'ふゆはさむいです。', chinese: '冬天很冷。', english: 'Winter is cold.' },
+  ],
+  '暖かい': [
+    { japanese: '春は暖かくていいです。', reading: 'はるはあたたかくていいです。', chinese: '春天温暖宜人。', english: 'Spring is warm and nice.' },
+  ],
+  '涼しい': [
+    { japanese: '朝は涼しいです。', reading: 'あさはすずしいです。', chinese: '早上很凉爽。', english: 'The morning is cool.' },
+  ],
+  '熱い': [
+    { japanese: '熱いお茶をください。', reading: 'あついおちゃをください。', chinese: '请给我热茶。', english: 'Hot tea, please.' },
+  ],
+  '冷たい': [
+    { japanese: '冷たい水をください。', reading: 'つめたいみずをください。', chinese: '请给我冷水。', english: 'Cold water, please.' },
+  ],
+  'おいしい': [
+    { japanese: 'この料理はおいしいです。', reading: 'このりょうりはおいしいです。', chinese: '这道菜很好吃。', english: 'This food is delicious.' },
+  ],
+  '楽しい': [
+    { japanese: 'パーティーは楽しかったです。', reading: 'パーティーはたのしかったです。', chinese: '派对很开心。', english: 'The party was fun.' },
+  ],
+  '面白い': [
+    { japanese: 'この本は面白いです。', reading: 'このほんはおもしろいです。', chinese: '这本书很有趣。', english: 'This book is interesting.' },
+  ],
+  'つまらない': [
+    { japanese: 'この映画はつまらなかったです。', reading: 'このえいがはつまらなかったです。', chinese: '这部电影很无聊。', english: 'This movie was boring.' },
+  ],
+  '難しい': [
+    { japanese: '漢字は難しいです。', reading: 'かんじはむずかしいです。', chinese: '汉字很难。', english: 'Kanji is difficult.' },
+  ],
+  '易しい': [
+    { japanese: 'この問題は易しいです。', reading: 'このもんだいはやさしいです。', chinese: '这个问题很简单。', english: 'This problem is easy.' },
+  ],
+  '簡単': [
+    { japanese: '簡単なテストでした。', reading: 'かんたんなテストでした。', chinese: '是个简单的测试。', english: 'It was an easy test.' },
+  ],
+  '好き': [
+    { japanese: '音楽が好きです。', reading: 'おんがくがすきです。', chinese: '我喜欢音乐。', english: 'I like music.' },
+  ],
+  '嫌い': [
+    { japanese: '野菜が嫌いです。', reading: 'やさいがきらいです。', chinese: '我讨厌蔬菜。', english: 'I hate vegetables.' },
+  ],
+  'きれい': [
+    { japanese: '桜はきれいです。', reading: 'さくらはきれいです。', chinese: '樱花很美。', english: 'Cherry blossoms are beautiful.' },
+  ],
+  '元気': [
+    { japanese: 'お元気ですか。', reading: 'おげんきですか。', chinese: '你好吗？', english: 'How are you?' },
+  ],
+  '忙しい': [
+    { japanese: '最近とても忙しいです。', reading: 'さいきんとてもいそがしいです。', chinese: '最近非常忙。', english: 'I have been very busy lately.' },
+  ],
+  '早い': [
+    { japanese: '朝早く起きます。', reading: 'あさはやくおきます。', chinese: '早上早起。', english: 'I wake up early in the morning.' },
+  ],
+  '近い': [
+    { japanese: '駅は家から近いです。', reading: 'えきはいえからちかいです。', chinese: '车站离我家很近。', english: 'The station is close to my house.' },
+  ],
+  '遠い': [
+    { japanese: '学校は家から遠いです。', reading: 'がっこうはいえからとおいです。', chinese: '学校离我家很远。', english: 'The school is far from my house.' },
+  ],
+  '明るい': [
+    { japanese: 'この部屋は明るいです。', reading: 'このへやはあかるいです。', chinese: '这个房间很明亮。', english: 'This room is bright.' },
+  ],
+  '暗い': [
+    { japanese: '外は暗いです。', reading: 'そとはくらいです。', chinese: '外面很暗。', english: 'It is dark outside.' },
+  ],
+  '白い': [
+    { japanese: '白いシャツを着ています。', reading: 'しろいシャツをきています。', chinese: '穿着白衬衫。', english: 'I am wearing a white shirt.' },
+  ],
+  '黒い': [
+    { japanese: '黒いカバンを持っています。', reading: 'くろいカバンをもっています。', chinese: '拿着黑色包。', english: 'I am carrying a black bag.' },
+  ],
+  '強い': [
+    { japanese: '彼はとても強いです。', reading: 'かれはとてもつよいです。', chinese: '他很强壮。', english: 'He is very strong.' },
+  ],
+  '弱い': [
+    { japanese: '数学が弱いです。', reading: 'すうがくがよわいです。', chinese: '我数学不好。', english: 'I am weak in math.' },
+  ],
+  '静か': [
+    { japanese: '図書館は静かです。', reading: 'としょかんはしずかです。', chinese: '图书馆很安静。', english: 'The library is quiet.' },
+  ],
+  'にぎやか': [
+    { japanese: '駅前はにぎやかです。', reading: 'えきまえはにぎやかです。', chinese: '车站前很热闹。', english: 'The station area is lively.' },
+  ],
+  '便利': [
+    { japanese: 'このアプリは便利です。', reading: 'このアプリはべんりです。', chinese: '这个应用很方便。', english: 'This app is convenient.' },
+  ],
+  '不便': [
+    { japanese: 'ここは少し不便です。', reading: 'ここはすこしふべんです。', chinese: '这里有点不方便。', english: 'This place is a bit inconvenient.' },
+  ],
+  '親切': [
+    { japanese: '隣の人は親切です。', reading: 'となりのひとはしんせつです。', chinese: '邻居很亲切。', english: 'The neighbor is kind.' },
+  ],
+  '有名': [
+    { japanese: '彼は有名な歌手です。', reading: 'かれはゆうめいなかしゅです。', chinese: '他是有名的歌手。', english: 'He is a famous singer.' },
+  ],
+  '重要': [
+    { japanese: 'これは重要な会議です。', reading: 'これはじゅうようなかいぎです。', chinese: '这是重要的会议。', english: 'This is an important meeting.' },
+  ],
+  '大切': [
+    { japanese: '家族は大切です。', reading: 'かぞくはたいせつです。', chinese: '家人很重要。', english: 'Family is important.' },
+  ],
+  '上手': [
+    { japanese: '日本語が上手ですね。', reading: 'にほんごがじょうずですね。', chinese: '你日语说得很好呢。', english: 'Your Japanese is very good.' },
+  ],
+  '下手': [
+    { japanese: '料理は下手です。', reading: 'りょうりはへたです。', chinese: '我做菜很差。', english: "I'm bad at cooking." },
+  ],
+  '大丈夫': [
+    { japanese: '大丈夫ですか。', reading: 'だいじょうぶですか。', chinese: '你没事吧？', english: 'Are you okay?' },
+  ],
+  '無理': [
+    { japanese: '無理をしないでください。', reading: 'むりをしないでください。', chinese: '请不要勉强自己。', english: 'Please do not overexert yourself.' },
+  ],
+
+  // --- 名词 ---
+  '食べ物': [
+    { japanese: '日本の食べ物はおいしいです。', reading: 'にほんのたべものはおいしいです。', chinese: '日本的食物很好吃。', english: 'Japanese food is delicious.' },
+  ],
+  '時間': [
+    { japanese: '時間がありません。', reading: 'じかんがありません。', chinese: '我没有时间。', english: "I don't have time." },
+    { japanese: '時間がありますか。', reading: 'じかんがありますか。', chinese: '你有空吗？', english: 'Do you have time?' },
+  ],
+  '友達': [
+    { japanese: '友達と一緒に映画を見ました。', reading: 'ともだちといっしょにえいがをみました。', chinese: '我和朋友一起看了电影。', english: 'I watched a movie with my friend.' },
+  ],
+  '学校': [
+    { japanese: '学校は何時に始まりますか。', reading: 'がっこうはなんじにはじまりますか。', chinese: '学校几点开始？', english: 'What time does school start?' },
+  ],
+  '大学': [
+    { japanese: '大学に入るために勉強しています。', reading: 'だいがくにはいるためにべんきょうしています。', chinese: '我为了上大学在学习。', english: 'I am studying to enter university.' },
+  ],
+  '先生': [
+    { japanese: '先生はとても親切です。', reading: 'せんせいはとてもしんせつです。', chinese: '老师非常亲切。', english: 'The teacher is very kind.' },
+  ],
+  '学生': [
+    { japanese: '私は日本語の学生です。', reading: 'わたしはにほんごのがくせいです。', chinese: '我是日语学生。', english: "I'm a Japanese language student." },
+  ],
+  '授業': [
+    { japanese: '今日の授業はおもしろかったです。', reading: 'きょうのじゅぎょうはおもしろかったです。', chinese: '今天的课很有趣。', english: "Today's class was interesting." },
+  ],
+  '宿題': [
+    { japanese: '宿題を忘れました。', reading: 'しゅくだいをわすれました。', chinese: '我忘记作业了。', english: 'I forgot my homework.' },
+  ],
+  '試験': [
+    { japanese: '来週試験があります。', reading: 'らいしゅうしけんがあります。', chinese: '下周有考试。', english: 'There is an exam next week.' },
+  ],
+  '質問': [
+    { japanese: '質問があります。', reading: 'しつもんがあります。', chinese: '我有问题。', english: 'I have a question.' },
+  ],
+  '問題': [
+    { japanese: '問題はありません。', reading: 'もんだいはありません。', chinese: '没有问题。', english: 'There is no problem.' },
+  ],
+  '答え': [
+    { japanese: '答えはこれです。', reading: 'こたえはこれです。', chinese: '答案是这个。', english: 'This is the answer.' },
+  ],
+  '本': [
+    { japanese: 'この本はとてもおもしろいです。', reading: 'このほんはとてもおもしろいです。', chinese: '这本书非常有趣。', english: 'This book is very interesting.' },
+  ],
+  '辞書': [
+    { japanese: '辞書で意味を調べます。', reading: 'じしょでいみをしらべます。', chinese: '我用字典查意思。', english: 'I look up the meaning in a dictionary.' },
+  ],
+  '新聞': [
+    { japanese: '毎朝新聞を読みます。', reading: 'まいあさしんぶんをよみます。', chinese: '我每天早上读报纸。', english: 'I read the newspaper every morning.' },
+  ],
+  '映画': [
+    { japanese: '今晩映画を見ませんか。', reading: 'こんばんえいがをみませんか。', chinese: '今晚看电影吗？', english: "Won't you watch a movie tonight?" },
+  ],
+  '音楽': [
+    { japanese: '音楽を聞きながら勉強します。', reading: 'おんがくをききながらべんきょうします。', chinese: '我一边听音乐一边学习。', english: 'I study while listening to music.' },
+  ],
+  '歌': [
+    { japanese: '日本の歌を歌います。', reading: 'にほんのうたをうたいます。', chinese: '我唱日本歌。', english: 'I sing Japanese songs.' },
+  ],
+  'スポーツ': [
+    { japanese: 'スポーツが好きです。', reading: 'スポーツがすきです。', chinese: '我喜欢运动。', english: 'I like sports.' },
+  ],
+  '野球': [
+    { japanese: '野球は人気があります。', reading: 'やきゅうはにんきがあります。', chinese: '棒球很受欢迎。', english: 'Baseball is popular.' },
+  ],
+  '山': [
+    { japanese: '富士山は日本で一番高い山です。', reading: 'ふじさんはにほんでいちばんたかいやまです。', chinese: '富士山是日本最高的山。', english: 'Mt. Fuji is the highest mountain in Japan.' },
+  ],
+  '海': [
+    { japanese: '夏に海へ行きます。', reading: 'なつにうみへいきます。', chinese: '夏天我去海边。', english: 'I go to the sea in summer.' },
+  ],
+  '空': [
+    { japanese: '空が青くてきれいです。', reading: 'そらがあおくてきれいです。', chinese: '天空湛蓝美丽。', english: 'The sky is blue and beautiful.' },
+  ],
+  '天気': [
+    { japanese: '今日は天気がいいです。', reading: 'きょうはてんきがいいです。', chinese: '今天天气好。', english: 'The weather is nice today.' },
+  ],
+  '雨': [
+    { japanese: '雨が降っています。', reading: 'あめがふっています。', chinese: '正在下雨。', english: 'It is raining.' },
+  ],
+  '雪': [
+    { japanese: '雪が降りました。', reading: 'ゆきがふりました。', chinese: '下雪了。', english: 'It snowed.' },
+  ],
+  '朝': [
+    { japanese: '朝は六時に起きます。', reading: 'あさはろくじにおきます。', chinese: '早上我6点起床。', english: 'I wake up at 6 in the morning.' },
+  ],
+  '昼': [
+    { japanese: '昼ご飯を食べましょう。', reading: 'ひるごはんをたべましょう。', chinese: '我们吃午饭吧。', english: "Let's eat lunch." },
+  ],
+  '夜': [
+    { japanese: '夜は何をしますか。', reading: 'よるはなにをしますか。', chinese: '晚上你做什么？', english: 'What do you do at night?' },
+  ],
+  '春': [
+    { japanese: '春は桜がきれいです。', reading: 'はるはさくらがきれいです。', chinese: '春天樱花很美。', english: 'Cherry blossoms are beautiful in spring.' },
+  ],
+  '夏': [
+    { japanese: '夏は暑いです。', reading: 'なつはあついです。', chinese: '夏天很热。', english: 'Summer is hot.' },
+  ],
+  '秋': [
+    { japanese: '秋は涼しくていい天気です。', reading: 'あきはすずしくていいてんきです。', chinese: '秋天凉爽宜人。', english: 'Autumn has cool, nice weather.' },
+  ],
+  '冬': [
+    { japanese: '冬は寒いです。', reading: 'ふゆはさむいです。', chinese: '冬天很冷。', english: 'Winter is cold.' },
+  ],
+  '今日': [
+    { japanese: '今日はいい日ですね。', reading: 'きょうはいいひですね。', chinese: '今天是个好天呢。', english: "It's a nice day today, isn't it?" },
+  ],
+  '明日': [
+    { japanese: '明日学校へ行きます。', reading: 'あしたがっこうへいきます。', chinese: '明天去学校。', english: 'I will go to school tomorrow.' },
+  ],
+  '日本': [
+    { japanese: '日本はとてもきれいな国です。', reading: 'にほんはとてもきれいなくにです。', chinese: '日本是个非常美丽的国家。', english: 'Japan is a very beautiful country.' },
+  ],
+  '東京': [
+    { japanese: '東京は日本の首都です。', reading: 'とうきょうはにほんのしゅとです。', chinese: '东京是日本的首都。', english: 'Tokyo is the capital of Japan.' },
+  ],
+  '駅': [
+    { japanese: '駅までどう行けばいいですか。', reading: 'えきまでどういけばいいですか。', chinese: '怎么去车站？', english: 'How do I get to the station?' },
+  ],
+  '家': [
+    { japanese: '家へ帰ります。', reading: 'いえへかえります。', chinese: '我回家。', english: 'I am going home.' },
+  ],
+  '部屋': [
+    { japanese: 'この部屋は広いです。', reading: 'このへやはひろいです。', chinese: '这个房间很大。', english: 'This room is spacious.' },
+  ],
+  '病院': [
+    { japanese: '病院へ行かなければなりません。', reading: 'びょういんへいかなければなりません。', chinese: '我必须去医院。', english: 'I must go to the hospital.' },
+  ],
+  '銀行': [
+    { japanese: '銀行でお金を下ろします。', reading: 'ぎんこうでおかねをおろします。', chinese: '我在银行取钱。', english: 'I withdraw money at the bank.' },
+  ],
+  '郵便局': [
+    { japanese: '郵便局で手紙を出します。', reading: 'ゆうびんきょくでてがみをだします。', chinese: '我在邮局寄信。', english: 'I mail a letter at the post office.' },
+  ],
+  '図書館': [
+    { japanese: '図書館で本を借ります。', reading: 'としょかんでほんをかります。', chinese: '我在图书馆借书。', english: 'I borrow books at the library.' },
+  ],
+  '映画館': [
+    { japanese: '映画館へ映画を見に行きます。', reading: 'えいがかんへえいがをみにいきます。', chinese: '我去电影院看电影。', english: 'I go to the movie theater to watch a movie.' },
+  ],
+  '料理': [
+    { japanese: '日本料理が好きです。', reading: 'にほんりょうりがすきです。', chinese: '我喜欢日本料理。', english: 'I like Japanese food.' },
+  ],
+  '水': [
+    { japanese: '水をください。', reading: 'みずをください。', chinese: '请给我水。', english: 'Water, please.' },
+  ],
+  'お茶': [
+    { japanese: 'お茶をどうぞ。', reading: 'おちゃをどうぞ。', chinese: '请喝茶。', english: 'Please have some tea.' },
+  ],
+  'ご飯': [
+    { japanese: 'ご飯ができました。', reading: 'ごはんができました。', chinese: '饭做好了。', english: 'Dinner is ready.' },
+  ],
+  'パン': [
+    { japanese: '朝ご飯はパンとコーヒーです。', reading: 'あさごはんはパンとコーヒーです。', chinese: '早饭是面包和咖啡。', english: 'Breakfast is bread and coffee.' },
+  ],
+  '肉': [
+    { japanese: '肉はあまり好きではありません。', reading: 'にくはあまりすきではありません。', chinese: '我不太喜欢肉。', english: "I don't really like meat." },
+  ],
+  '野菜': [
+    { japanese: '野菜をたくさん食べましょう。', reading: 'やさいをたくさんたべましょう。', chinese: '多吃蔬菜吧。', english: "Let's eat lots of vegetables." },
+  ],
+  '車': [
+    { japanese: '車を持っています。', reading: 'くるまをもっています。', chinese: '我有车。', english: 'I have a car.' },
+  ],
+  '電車': [
+    { japanese: '電車で通勤しています。', reading: 'でんしゃでつうきんしています。', chinese: '我坐电车通勤。', english: 'I commute by train.' },
+  ],
+  '地下鉄': [
+    { japanese: '地下鉄は便利です。', reading: 'ちかてつはべんりです。', chinese: '地铁很方便。', english: 'The subway is convenient.' },
+  ],
+  'バス': [
+    { japanese: 'バスで会社へ行きます。', reading: 'バスでかいしゃへいきます。', chinese: '我坐公交车去公司。', english: 'I go to work by bus.' },
+  ],
+  '飛行機': [
+    { japanese: '飛行機で日本へ行きます。', reading: 'ひこうきでにほんへいきます。', chinese: '我坐飞机去日本。', english: 'I go to Japan by plane.' },
+  ],
+  '自転車': [
+    { japanese: '自転車で町を走り回ります。', reading: 'じてんしゃでまちをはしりまわります。', chinese: '我骑自行车在城里转。', english: 'I ride my bicycle around town.' },
+  ],
+  '切符': [
+    { japanese: '切符を買いましたか。', reading: 'きっぷをかいましたか。', chinese: '你买票了吗？', english: 'Did you buy a ticket?' },
+  ],
+
+  // --- 副词 ---
+  'とても': [
+    { japanese: 'とてもおいしいです。', reading: 'とてもおいしいです。', chinese: '非常好吃。', english: 'It is very delicious.' },
+  ],
+  'ちょっと': [
+    { japanese: 'ちょっと待ってください。', reading: 'ちょっとまってください。', chinese: '请稍等一下。', english: 'Please wait a moment.' },
+  ],
+  'すごく': [
+    { japanese: 'すごく面白い映画でした。', reading: 'すごくおもしろいえいがでした。', chinese: '是一部非常有趣的电影。', english: 'It was a very interesting movie.' },
+  ],
+  'あまり': [
+    { japanese: 'あまり好きではありません。', reading: 'あまりすきではありません。', chinese: '不太喜欢。', english: "I don't really like it." },
+  ],
+  'よく': [
+    { japanese: 'よく映画を見ます。', reading: 'よくえいがをみます。', chinese: '我经常看电影。', english: 'I often watch movies.' },
+  ],
+  'たまに': [
+    { japanese: 'たまに外食します。', reading: 'たまにがいしょくします。', chinese: '我偶尔出去吃饭。', english: 'I occasionally eat out.' },
+  ],
+  '時々': [
+    { japanese: '時々図書館へ行きます。', reading: 'ときどきとしょかんへいきます。', chinese: '我有时去图书馆。', english: 'I sometimes go to the library.' },
+  ],
+  'いつも': [
+    { japanese: 'いつもここでコーヒーを飲みます。', reading: 'いつもここでコーヒーをのみます。', chinese: '我总是在这里喝咖啡。', english: 'I always drink coffee here.' },
+  ],
+  'もう': [
+    { japanese: 'もう行かなければなりません。', reading: 'もういかなければなりません。', chinese: '我必须走了。', english: 'I must go now.' },
+  ],
+  'まだ': [
+    { japanese: 'まだ終わっていません。', reading: 'まだおわっていません。', chinese: '还没结束。', english: 'It is not finished yet.' },
+  ],
+  'ほとんど': [
+    { japanese: 'ほとんど分かりました。', reading: 'ほとんどわかりました。', chinese: '几乎都懂了。', english: 'I mostly understood.' },
+  ],
+  '本当に': [
+    { japanese: '本当にすごいですね。', reading: 'ほんとうにすごいですね。', chinese: '真的很厉害呢。', english: "It's really amazing, isn't it?" },
+  ],
+  '一緒に': [
+    { japanese: '一緒に行きましょう。', reading: 'いっしょにいきましょう。', chinese: '一起去吧。', english: "Let's go together." },
+  ],
+  'ゆっくり': [
+    { japanese: 'ゆっくり話してください。', reading: 'ゆっくりはなしてください。', chinese: '请慢慢说。', english: 'Please speak slowly.' },
+  ],
+  'すぐ': [
+    { japanese: 'すぐに戻ります。', reading: 'すぐにもどります。', chinese: '我马上回来。', english: 'I will be right back.' },
+  ],
+  '一番': [
+    { japanese: 'これが一番好きです。', reading: 'これがいちばんすきです。', chinese: '这个是我最喜欢的。', english: 'This is my favorite.' },
+  ],
+
+  // --- 人称代词/礼貌用语 ---
+  '私': [
+    { japanese: '私は学生です。', reading: 'わたしはがくせいです。', chinese: '我是学生。', english: 'I am a student.' },
+  ],
+  'あなた': [
+    { japanese: 'あなたは日本人ですか。', reading: 'あなたはにほんじんですか。', chinese: '你是日本人吗？', english: 'Are you Japanese?' },
+  ],
+  '彼': [
+    { japanese: '彼は医者です。', reading: 'かれはいしゃです。', chinese: '他是医生。', english: 'He is a doctor.' },
+  ],
+  '彼女': [
+    { japanese: '彼女はとても親切です。', reading: 'かのじょはとてもしんせつです。', chinese: '她非常亲切。', english: 'She is very kind.' },
+  ],
+  '人': [
+    { japanese: 'その人は誰ですか。', reading: 'そのひとはだれですか。', chinese: '那个人是谁？', english: 'Who is that person?' },
+  ],
+  '人々': [
+    { japanese: '多くの人々が集まりました。', reading: 'おおくのひとびとがあつまりました。', chinese: '很多人聚集在一起。', english: 'Many people gathered.' },
+  ],
+  '子供': [
+    { japanese: '子供たちが公園で遊んでいます。', reading: 'こどもたちがこうえんであそんでいます。', chinese: '孩子们在公园玩耍。', english: 'Children are playing in the park.' },
+  ],
+  '皆': [
+    { japanese: '皆さん、こんにちは。', reading: 'みなさん、こんにちは。', chinese: '大家好。', english: 'Hello, everyone.' },
+  ],
+  '日本人': [
+    { japanese: '日本人は礼儀正しいです。', reading: 'にほんじんはれいぎただしいです。', chinese: '日本人很有礼貌。', english: 'Japanese people are polite.' },
+  ],
+  '会社': [
+    { japanese: '会社に行きます。', reading: 'かいしゃにいきます。', chinese: '我去公司。', english: 'I go to the office.' },
+  ],
+  '仕事': [
+    { japanese: '仕事が忙しいです。', reading: 'しごとがいそがしいです。', chinese: '工作很忙。', english: 'Work is busy.' },
+  ],
+  '健康': [
+    { japanese: '健康に気をつけてください。', reading: 'けんこうにきをつけてください。', chinese: '请注意身体健康。', english: 'Please take care of your health.' },
+  ],
+  '病気': [
+    { japanese: '病気で学校を休みました。', reading: 'びょうきでがっこうをやすみました。', chinese: '因为生病请假了。', english: 'I was absent from school due to illness.' },
+  ],
+
+  // --- 场所/关系词 ---
+  '中': [
+    { japanese: '箱の中に何がありますか。', reading: 'はこのなかになにがありますか。', chinese: '箱子里有什么？', english: 'What is inside the box?' },
+  ],
+  '外': [
+    { japanese: '外は寒いです。', reading: 'そとはさむいです。', chinese: '外面很冷。', english: 'It is cold outside.' },
+  ],
+  '上': [
+    { japanese: '机の上に本があります。', reading: 'つくえのうえにほんがあります。', chinese: '桌子上有书。', english: 'There is a book on the desk.' },
+  ],
+  '下': [
+    { japanese: 'ベッドの下に靴があります。', reading: 'ベッドのしたにくつがあります。', chinese: '床下面有鞋子。', english: 'There are shoes under the bed.' },
+  ],
+  '前': [
+    { japanese: '銀行の前にバス停があります。', reading: 'ぎんこうのまえにバスていがあります。', chinese: '银行前面有公交站。', english: 'There is a bus stop in front of the bank.' },
+  ],
+  '右': [
+    { japanese: '右に曲がってください。', reading: 'みぎにまがってください。', chinese: '请向右转。', english: 'Please turn right.' },
+  ],
+  '左': [
+    { japanese: '左に曲がってください。', reading: 'ひだりにまがってください。', chinese: '请向左转。', english: 'Please turn left.' },
+  ],
+  '隣': [
+    { japanese: '隣の家に友達が住んでいます。', reading: 'となりのいえにともだちがすんでいます。', chinese: '朋友住在隔壁。', english: 'My friend lives next door.' },
+  ],
+  '側': [
+    { japanese: '窓の側に座ります。', reading: 'まどのそばにすわります。', chinese: '坐在窗边。', english: 'I sit by the window.' },
+  ],
+  '間': [
+    { japanese: '二つの駅の間にあります。', reading: 'ふたつのえきのあいだにあります。', chinese: '在两个车站之间。', english: 'It is between two stations.' },
+  ],
+
+  // --- 物品 ---
+  '写真': [
+    { japanese: '写真を見せてください。', reading: 'しゃしんをみせてください。', chinese: '请给我看照片。', english: 'Please show me the photo.' },
+  ],
+  '地図': [
+    { japanese: '地図をください。', reading: 'ちずをください。', chinese: '请给我地图。', english: 'Please give me a map.' },
+  ],
+  '絵': [
+    { japanese: '素敵な絵ですね。', reading: 'すてきなえですね。', chinese: '真是很棒的画呢。', english: "It's a lovely painting." },
+  ],
+};
+
+// 辅助函数：获取某个单词的例句
+export function getExamplesForWord(word: string): VocabExample[] {
+  return vocabExamples[word] || [];
+}

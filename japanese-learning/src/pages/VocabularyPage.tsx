@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { buildMeaning } from '../utils/translations';
 import { loadVocabulary, searchVocabulary, type JMDictWord } from '../data/jmdict-loader';
+import { getExamplesForWord, type VocabExample } from '../data/vocab-examples';
 
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
@@ -58,12 +59,30 @@ function FlashCard({ word, flipped, onFlip }: { word: JMDictWord; flipped: boole
 
         {/* Back */}
         <div
-          className="absolute inset-0 bg-primary rounded-2xl border-2 border-primary-light flex flex-col items-center justify-center p-6 text-white shadow-lg"
+          className="absolute inset-0 bg-primary rounded-2xl border-2 border-primary-light flex flex-col items-start justify-center p-6 text-white shadow-lg overflow-y-auto"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
-          <span className="text-3xl font-serif mb-3 text-white text-center">{buildMeaning(word.word, word.meaning)}</span>
-          <span className="text-base text-white/80 font-sans mb-2">{word.reading}</span>
-          <span className="text-2xl font-serif text-white">{word.word}</span>
+          <div className="w-full flex flex-col items-center">
+            <span className="text-3xl font-serif mb-3 text-white text-center">{buildMeaning(word.word, word.meaning)}</span>
+            <span className="text-base text-white/80 font-sans mb-2">{word.reading}</span>
+            <span className="text-2xl font-serif text-white mb-4">{word.word}</span>
+            {(() => {
+              const examples = getExamplesForWord(word.word);
+              if (examples.length === 0) return null;
+              return (
+                <div className="w-full border-t border-white/30 pt-3 mt-2 text-left">
+                  <p className="text-xs text-white/70 font-sans mb-2">📝 例句</p>
+                  {examples.slice(0, 2).map((ex, idx) => (
+                    <div key={idx} className="mb-2">
+                      <p className="text-sm font-serif text-white leading-snug">{ex.japanese}</p>
+                      {ex.reading && <p className="text-xs text-white/60 font-sans mt-0.5">{ex.reading}</p>}
+                      {ex.chinese && <p className="text-xs text-white/70 font-sans mt-0.5">{ex.chinese}</p>}
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
         </div>
       </div>
     </div>
@@ -417,32 +436,47 @@ export default function VocabularyPage() {
       {/* List Mode */}
       {pageMode !== 'search' && mode === 'list' && (
         <div className="space-y-3">
-          {displayedWords.map((word, idx) => (
-            <div
-              key={`${word.word}-${idx}`}
-              className="bg-white rounded-xl border border-border p-5 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-xl font-serif text-ink font-bold">
-                    {word.word}
-                  </span>
-                  <span className="text-sm text-ink-light font-sans ml-3">
-                    {word.reading}
-                  </span>
-                  <span className="ml-2 px-2 py-0.5 bg-gold-soft text-gold text-xs rounded font-sans">
-                    {word.partOfSpeech}
-                  </span>
-                  <span className="ml-1 px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
-                    {word.level}
+          {displayedWords.map((word, idx) => {
+            const examples = getExamplesForWord(word.word);
+            return (
+              <div
+                key={`${word.word}-${idx}`}
+                className="bg-white rounded-xl border border-border p-5 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-xl font-serif text-ink font-bold">
+                      {word.word}
+                    </span>
+                    <span className="text-sm text-ink-light font-sans ml-3">
+                      {word.reading}
+                    </span>
+                    <span className="ml-2 px-2 py-0.5 bg-gold-soft text-gold text-xs rounded font-sans">
+                      {word.partOfSpeech}
+                    </span>
+                    <span className="ml-1 px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
+                      {word.level}
+                    </span>
+                  </div>
+                  <span className="text-base font-bold text-ink font-sans">
+                    {buildMeaning(word.word, word.meaning)}
                   </span>
                 </div>
-                <span className="text-base font-bold text-ink font-sans">
-                  {buildMeaning(word.word, word.meaning)}
-                </span>
+                {examples.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-border/40">
+                    <p className="text-xs text-ink-muted font-sans mb-2">📝 例句</p>
+                    {examples.slice(0, 2).map((ex, eidx) => (
+                      <div key={eidx} className="mb-2 last:mb-0">
+                        <p className="text-sm font-serif text-ink leading-relaxed">{ex.japanese}</p>
+                        {ex.reading && <p className="text-xs text-ink-light font-sans mt-0.5">{ex.reading}</p>}
+                        {ex.chinese && <p className="text-xs text-ink-muted font-sans mt-0.5">{ex.chinese}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div className="flex justify-center pt-4">
             {listVisible < words.length && (
               <button
