@@ -12,50 +12,179 @@ st.set_page_config(
     page_title="日本語学習",
     page_icon="🇯🇵",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
-# ── Custom CSS ───────────────────────────────────────────────────
+# ── Custom CSS (Desktop + Mobile) ─────────────────────────────────
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
 
+    /* ── Base ── */
     .stApp { background-color: #faf8f5; }
 
     .font-serif { font-family: 'Noto Serif JP', serif !important; }
     .font-sans { font-family: 'Noto Sans JP', 'Noto Sans SC', sans-serif !important; }
 
+    h1, h2, h3 { font-family: 'Noto Serif JP', serif; }
+    p, li, span, div { font-family: 'Noto Sans JP', 'Noto Sans SC', sans-serif; }
+
+    div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column;"] > div[data-testid="stVerticalBlock"] { gap: 0.5rem; }
+
+    /* ── Cards ── */
     .card { background: white; border: 1px solid #e5e0d8; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
     .card-accent { border-left: 4px solid #d4a574; }
     .card-primary { border-left: 4px solid #6b8f7e; }
     .card-bamboo { border-left: 4px solid #7a9e7e; }
     .card-gold { border-left: 4px solid #c9a84c; }
 
-    .flashcard-front { background: white; border: 2px solid #e5e0d8; border-radius: 16px; padding: 40px 20px; text-align: center; min-height: 320px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
-    .flashcard-back { background: #6b8f7e; border: 2px solid #5a7d6d; border-radius: 16px; padding: 30px 20px; text-align: center; min-height: 320px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: white; }
+    /* ── Flashcard ── */
+    .flashcard-front { background: white; border: 2px solid #e5e0d8; border-radius: 16px; padding: 40px 20px; text-align: center; min-height: 320px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .flashcard-back { background: #6b8f7e; border: 2px solid #5a7d6d; border-radius: 16px; padding: 30px 20px; text-align: center; min-height: 320px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
 
-    .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; margin: 2px; }
+    /* ── Tags ── */
+    .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; margin: 2px; white-space: nowrap; }
     .tag-level { background: #e8f0ec; color: #6b8f7e; }
     .tag-pos { background: #fdf3e0; color: #c9a84c; }
     .tag-category { background: #e8e0f0; color: #7a5ea0; }
 
+    /* ── Word card ── */
     .word-card { background: white; border: 1px solid #e5e0d8; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
     .word-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .word-card-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+    .word-card-left { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+    .word-card-word { font-size: 1.2rem; font-family: 'Noto Serif JP', serif; font-weight: bold; }
+    .word-card-reading { font-size: 0.85rem; color: #888; margin-left: 8px; }
+    .word-card-meaning { font-weight: bold; color: #333; white-space: nowrap; }
 
+    /* ── Example box ── */
     .example-box { background: #f8f6f2; border-left: 3px solid #d4a574; border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 8px; }
 
-    .article-card { background: white; border: 1px solid #e5e0d8; border-radius: 12px; padding: 20px; margin-bottom: 14px; cursor: pointer; }
+    /* ── Article card ── */
+    .article-card { background: white; border: 1px solid #e5e0d8; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
     .article-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #6b8f7e; }
 
+    /* ── Article content ── */
+    .article-content { font-size: 1.1rem; font-family: 'Noto Serif JP', serif; line-height: 2; margin: 8px 0; }
+
+    /* ── Kana cell ── */
     .kana-cell { display: inline-flex; flex-direction: column; align-items: center; padding: 8px 12px; margin: 2px; background: white; border: 1px solid #e5e0d8; border-radius: 8px; min-width: 56px; }
     .kana-cell:hover { border-color: #d4a574; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
+    /* ── Grammar item ── */
     .grammar-item { background: white; border: 1px solid #e5e0d8; border-radius: 12px; padding: 18px; margin-bottom: 10px; }
+    .grammar-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .grammar-pattern { font-size: 1.1rem; font-family: 'Noto Serif JP', serif; font-weight: bold; color: #7a9e7e; }
+    .grammar-preview { font-size: 0.85rem; color: #888; margin-top: 4px; }
 
-    h1, h2, h3 { font-family: 'Noto Serif JP', serif; }
-    p, li, span, div { font-family: 'Noto Sans JP', 'Noto Sans SC', sans-serif; }
+    /* ── Example text ── */
+    .example-jp { font-size: 1rem; font-family: 'Noto Serif JP', serif; font-weight: bold; margin: 0; }
+    .example-reading { font-size: 0.85rem; color: #888; margin: 2px 0; }
+    .example-chinese { font-size: 0.85rem; color: #999; margin: 2px 0; }
 
-    div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column;"] > div[data-testid="stVerticalBlock"] { gap: 0.5rem; }
+    /* ── Sidebar ── */
+    [data-testid="stSidebar"] { background: #faf8f5; }
+
+    /* ══════════════════════════════════════════════════════════════
+       MOBILE RESPONSIVE (max-width: 768px)
+       ══════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+        /* ── Global ── */
+        .stApp { padding: 0 !important; }
+
+        section.main > div { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+
+        h1 { font-size: 1.4rem !important; }
+        h2 { font-size: 1.2rem !important; }
+        h3 { font-size: 1.05rem !important; }
+
+        /* ── Cards ── */
+        .card { padding: 14px; border-radius: 10px; margin-bottom: 10px; }
+
+        /* ── Flashcard ── */
+        .flashcard-front { min-height: 280px; padding: 24px 14px; border-radius: 14px; }
+        .flashcard-back { min-height: 280px; padding: 20px 14px; border-radius: 14px; }
+
+        /* ── Word card ── */
+        .word-card { padding: 14px; border-radius: 10px; margin-bottom: 8px; }
+        .word-card-row { flex-direction: column; gap: 6px; }
+        .word-card-meaning { white-space: normal !important; font-size: 0.9rem; }
+        .word-card-word { font-size: 1.1rem; }
+        .word-card-reading { font-size: 0.8rem; margin-left: 4px; }
+
+        /* ── Article card ── */
+        .article-card { padding: 14px; border-radius: 10px; margin-bottom: 10px; }
+
+        /* ── Article content ── */
+        .article-content { font-size: 1rem; line-height: 1.8; margin: 6px 0; }
+
+        /* ── Kana ── */
+        .kana-cell { min-width: 0; padding: 6px 4px; border-radius: 6px; margin: 1px; }
+
+        /* ── Grammar ── */
+        .grammar-item { padding: 12px; border-radius: 10px; margin-bottom: 8px; }
+        .grammar-pattern { font-size: 1rem; }
+        .grammar-preview { font-size: 0.8rem; }
+
+        /* ── Example ── */
+        .example-jp { font-size: 0.9rem; }
+        .example-reading { font-size: 0.78rem; }
+        .example-chinese { font-size: 0.78rem; }
+
+        /* ── Example box ── */
+        .example-box { padding: 8px 10px; }
+
+        /* ── Tags ── */
+        .tag { padding: 2px 8px; font-size: 11px; }
+
+        /* ── Buttons: larger touch targets ── */
+        .stButton button { min-height: 44px !important; border-radius: 10px !important; font-size: 0.9rem !important; }
+
+        /* ── Radio buttons: wrap ── */
+        [data-testid="stRadio"] > div[role="radiogroup"] {
+            flex-wrap: wrap !important;
+            gap: 4px !important;
+        }
+        [data-testid="stRadio"] label {
+            padding: 6px 12px !important;
+            font-size: 0.8rem !important;
+        }
+
+        /* ── Select box ── */
+        [data-testid="stSelectbox"] { font-size: 0.9rem !important; }
+
+        /* ── Text input ── */
+        input[type="text"] { font-size: 16px !important; min-height: 44px !important; }
+
+        /* ── Sidebar ── */
+        [data-testid="stSidebar"] { width: 100% !important; max-width: 100% !important; }
+
+        /* ── Caption text ── */
+        .stCaption { font-size: 0.8rem !important; }
+
+        /* ── Main content padding ── */
+        .block-container { padding-top: 1rem !important; padding-bottom: 2rem !important; }
+
+        /* ── Hide Streamlit hamburger menu on mobile (use sidebar toggle) ── */
+        [data-testid="stHeader"] { height: 2.5rem !important; }
+
+        /* ── Collapse horizontal radio groups ── */
+        [data-testid="stRadio"] > div[role="radiogroup"] > label {
+            flex: 1 1 auto !important;
+            text-align: center !important;
+            justify-content: center !important;
+        }
+    }
+
+    /* ── Small phones (max-width: 480px) ── */
+    @media (max-width: 480px) {
+        .flashcard-front { min-height: 240px; padding: 18px 10px; }
+        .flashcard-back { min-height: 240px; padding: 16px 10px; }
+
+        .card { padding: 10px; }
+
+        .kana-cell { padding: 4px 2px; min-width: 0; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -317,61 +446,64 @@ def _render_flashcard(words, examples_data):
     examples = examples_data.get(word["word"], [])
 
     # Flashcard
+    word_font = "clamp(2rem, 5vw, 3rem)"
     if not flipped:
         st.markdown(f"""
-        <div class="flashcard-front" onclick="this.querySelector('span').click()">
+        <div class="flashcard-front">
             <span class="tag tag-level">{word['level']}</span>
             <span class="tag tag-pos" style="margin-left:4px;">{word['partOfSpeech']}</span>
-            <div style="font-size:3rem; font-family:'Noto Serif JP',serif; margin: 20px 0; color: #333;">{word['word']}</div>
-            <div style="font-size:1.1rem; color: #888;">{word['reading']}</div>
-            <div style="font-size:0.75rem; color: #bbb; margin-top: 24px;">点击「翻转卡片」按钮查看释义</div>
+            <div style="font-size:{word_font}; font-family:'Noto Serif JP',serif; margin: 16px 0; color: #333; word-break:break-all;">{word['word']}</div>
+            <div style="font-size:clamp(0.85rem, 2.5vw, 1.1rem); color: #888;">{word['reading']}</div>
+            <div style="font-size:clamp(0.7rem, 1.5vw, 0.75rem); color: #bbb; margin-top: 20px;">点击「翻转卡片」按钮查看释义</div>
         </div>
         """, unsafe_allow_html=True)
     else:
         ex_html = ""
         if examples:
             ex_html = '<div style="border-top:1px solid rgba(255,255,255,0.3); margin-top:12px; padding-top:12px; text-align:left; width:100%;">'
-            ex_html += '<p style="font-size:0.75rem; color:rgba(255,255,255,0.7); margin-bottom:8px;">📝 例句</p>'
+            ex_html += '<p style="font-size:clamp(0.7rem, 1.5vw, 0.75rem); color:rgba(255,255,255,0.7); margin-bottom:8px;">📝 例句</p>'
             for ex in examples[:2]:
-                ex_html += f'<p style="font-size:0.9rem; margin:4px 0;">{ex["japanese"]}</p>'
+                ex_html += f'<p style="font-size:clamp(0.8rem, 2vw, 0.9rem); margin:4px 0;">{ex["japanese"]}</p>'
                 if ex.get("reading"):
-                    ex_html += f'<p style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin:2px 0;">{ex["reading"]}</p>'
+                    ex_html += f'<p style="font-size:clamp(0.7rem, 1.5vw, 0.75rem); color:rgba(255,255,255,0.6); margin:2px 0;">{ex["reading"]}</p>'
                 if ex.get("chinese"):
-                    ex_html += f'<p style="font-size:0.75rem; color:rgba(255,255,255,0.7); margin:2px 0 8px;">{ex["chinese"]}</p>'
+                    ex_html += f'<p style="font-size:clamp(0.7rem, 1.5vw, 0.75rem); color:rgba(255,255,255,0.7); margin:2px 0 8px;">{ex["chinese"]}</p>'
             ex_html += '</div>'
 
         st.markdown(f"""
         <div class="flashcard-back">
-            <div style="font-size:1.8rem; margin-bottom: 8px;">{build_meaning(word['word'], word['meaning'])}</div>
-            <div style="font-size:0.9rem; color:rgba(255,255,255,0.8);">{word['reading']}</div>
-            <div style="font-size:1.4rem; margin: 8px 0;">{word['word']}</div>
+            <div style="font-size:clamp(1.2rem, 3vw, 1.8rem); margin-bottom: 8px;">{build_meaning(word['word'], word['meaning'])}</div>
+            <div style="font-size:clamp(0.8rem, 2vw, 0.9rem); color:rgba(255,255,255,0.8);">{word['reading']}</div>
+            <div style="font-size:clamp(1rem, 2.5vw, 1.4rem); margin: 8px 0;">{word['word']}</div>
             {ex_html}
         </div>
         """, unsafe_allow_html=True)
 
-    # Controls
-    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+    # Controls: 2 rows of 2 on mobile, 4 columns on desktop
+    col1, col2 = st.columns(2)
     with col1:
-        if st.button("⬅ 上一个", use_container_width=True):
+        if st.button("⬅ 上一个", use_container_width=True, key="prev_btn"):
             st.session_state.vocab_idx = (idx - 1) % len(words)
             st.session_state.vocab_flipped = False
             st.rerun()
     with col2:
-        st.caption(f"{idx + 1} / {len(words)}")
-    with col3:
-        if st.button("下一个 ➡", use_container_width=True):
+        if st.button("下一个 ➡", use_container_width=True, key="next_btn"):
             st.session_state.vocab_idx = (idx + 1) % len(words)
             st.session_state.vocab_flipped = False
             st.rerun()
-    with col4:
-        if st.button("🔄 翻转卡片", use_container_width=True):
+
+    col3, col4 = st.columns(2)
+    with col3:
+        if st.button("🔄 翻转卡片", use_container_width=True, key="flip_btn"):
             st.session_state.vocab_flipped = not flipped
             st.rerun()
+    with col4:
+        if st.button("🎲 随机", use_container_width=True, key="random_btn"):
+            st.session_state.vocab_idx = random.randint(0, len(words) - 1)
+            st.session_state.vocab_flipped = False
+            st.rerun()
 
-    if st.button("🎲 随机", use_container_width=True):
-        st.session_state.vocab_idx = random.randint(0, len(words) - 1)
-        st.session_state.vocab_flipped = False
-        st.rerun()
+    st.caption(f"{idx + 1} / {len(words)}")
 
 
 def _render_word_list(words, examples_data):
@@ -397,14 +529,14 @@ def _render_word_list(words, examples_data):
 
         st.markdown(f"""
         <div class="word-card">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                <div>
-                    <span style="font-size:1.2rem; font-family:'Noto Serif JP',serif; font-weight:bold;">{w['word']}</span>
-                    <span style="font-size:0.85rem; color:#888; margin-left:8px;">{w['reading']}</span>
-                    <span class="tag tag-pos" style="margin-left:6px;">{w['partOfSpeech']}</span>
-                    <span class="tag tag-level" style="margin-left:4px;">{w['level']}</span>
+            <div class="word-card-row">
+                <div class="word-card-left">
+                    <span class="word-card-word">{w['word']}</span>
+                    <span class="word-card-reading">{w['reading']}</span>
+                    <span class="tag tag-pos">{w['partOfSpeech']}</span>
+                    <span class="tag tag-level">{w['level']}</span>
                 </div>
-                <span style="font-weight:bold; color:#333;">{build_meaning(w['word'], w['meaning'])}</span>
+                <span class="word-card-meaning">{build_meaning(w['word'], w['meaning'])}</span>
             </div>
             {ex_html}
         </div>
@@ -449,33 +581,32 @@ def grammar_page():
         pid = point["id"]
         is_expanded = st.session_state.grammar_expanded == pid
 
-        with st.container():
-            col1, col2 = st.columns([6, 1])
-            with col1:
+        # Single clickable card with expand button inside
+        btn_label = "▼ 展开" if not is_expanded else "▲ 收起"
+        if st.button(btn_label, key=f"grammar_expand_{pid}", use_container_width=True):
+            st.session_state.grammar_expanded = pid if not is_expanded else None
+            st.rerun()
+
+        st.markdown(f"""
+        <div class="grammar-item">
+            <div class="grammar-header">
+                <span class="grammar-pattern">{point['pattern']}</span>
+                <span class="tag tag-pos">{point['meaning']}</span>
+            </div>
+            <p class="grammar-preview">{point['explanation'][:100]}{'...' if len(point.get('explanation','')) > 100 else ''}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if is_expanded:
+            st.markdown(f"**{point['explanation']}**")
+            for ex in point["examples"]:
                 st.markdown(f"""
-                <div class="grammar-item">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <span style="font-size:1.1rem; font-family:'Noto Serif JP',serif; font-weight:bold; color:#7a9e7e;">{point['pattern']}</span>
-                        <span class="tag tag-pos">{point['meaning']}</span>
-                    </div>
-                    <p style="font-size:0.85rem; color:#888; margin-top:4px;">{point['explanation'][:100]}{'...' if len(point.get('explanation','')) > 100 else ''}</p>
+                <div class="example-box">
+                    <p class="example-jp">{ex['japanese']}</p>
+                    <p class="example-reading">{ex['reading']}</p>
+                    <p class="example-chinese">{ex['chinese']}</p>
                 </div>
                 """, unsafe_allow_html=True)
-            with col2:
-                if st.button("展开 ▼" if not is_expanded else "收起 ▲", key=f"grammar_expand_{pid}"):
-                    st.session_state.grammar_expanded = pid if not is_expanded else None
-                    st.rerun()
-
-            if is_expanded:
-                st.markdown(f"**{point['explanation']}**")
-                for ex in point["examples"]:
-                    st.markdown(f"""
-                    <div class="example-box">
-                        <p style="font-size:1rem; font-family:'Noto Serif JP',serif; font-weight:bold; margin:0;">{ex['japanese']}</p>
-                        <p style="font-size:0.85rem; color:#888; margin:2px 0;">{ex['reading']}</p>
-                        <p style="font-size:0.85rem; color:#999; margin:2px 0;">{ex['chinese']}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -615,7 +746,7 @@ def _render_article_detail(article):
     for p in paragraphs:
         if p.strip():
             st.markdown(f"""
-            <p style="font-size:1.1rem; font-family:'Noto Serif JP',serif; line-height:2; margin:8px 0;">{p.strip()}</p>
+            <p class="article-content">{p.strip()}</p>
             """, unsafe_allow_html=True)
 
     st.caption("选中日语文字即可查询释义（在真机环境可用）")
