@@ -1,112 +1,89 @@
 /**
- * Translation service using free APIs
- * Supports Google Translate (via open source wrapper) and fallback options
+ * 日语 → 中文 翻译服务
+ * - 开发环境：通过 Vite 代理 /api/translate 调用 Google 翻译，避免 CORS
+ * - 生产环境：直接调用公共 API（可能需要自己部署代理服务）
+ * - 带内存缓存，避免重复请求
  */
 
-// Google Translate API endpoint (free, unofficial)
-const GOOGLE_TRANSLATE_URL = 'https://translate.googleapis.com/translate_a/single';
+const browserCache = new Map<string, { text: string; ts: number }>();
+const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 1 天
 
-// LibreTranslate public instances (fallback)
-const LIBRE_INSTANCES = [
-  'https://libretranslate.com',
-  'https://translate.terraprint.co',
-];
+/** 构造代理 URL（开发环境首选） */
+function buildProxyUrl(text: string, src: string, dst: string): string {
+  const params = new URLSearchParams({
+    text,
+    src,
+    dst,
+    _t: String(Math.floor(Date.now() / 60000)), // 1 分钟粒度，允许 HTTP 缓存
+  });
+  return `/api/translate?${params.toString()}`;
+}
 
 /**
- * Translate Japanese text to Chinese using Google Translate (free)
- * @param text Japanese text to translate
- * @returns Chinese translation or null if failed
+ * 翻译日语到中文
+ * @param text 日语文本（最多 2000 字符）
+ * @param options.src 源语言（默认 ja）
+ * @param options.dst 目标语言（默认 zh-CN）
  */
-export async function translateToChinese(text: string): Promise<string | null> {
-  if (!text || text.length === 0) return null;
-  
-  // Limit text length to avoid API issues (Google accepts up to 5000 chars)
-  const maxLen = 2000;
-  const textToTranslate = text.length > maxLen ? text.slice(0, maxLen) : text;
-  
+export async function translateToChinese(
+  text: string,
+  options?: { src?: string; dst?: string },
+): Promise<string | null> {
+  if (!text?.trim()) return null;
+
+  const src = options?.src || 'ja';
+  const dst = options?.dst || 'zh-CN';
+  const key = `${src}|${dst}|${text}`;
+
+  const cached = browserCache.get(key);
+  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
+    return cached.text;
+  }
+
+  // 1. 优先调用开发代理（/api/translate），生产环境若无该代理可能会 404
   try {
-    // Use Google Translate free endpoint
-    const url = `${GOOGLE_TRANSLATE_URL}?client=gtx&sl=ja&tl=zh-CN&dt=t&q=${encodeURIComponent(textToTranslate)}`;
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-      console.error('Google Translate API error:', response.status);
-      return await tryLibreTranslate(textToTranslate);
-    }
-    
-    const data = await response.json();
-    
-    // Google returns array of arrays: [[["translated text", "original text", null, null], ...]]
-    if (data && data[0]) {
-      const translatedParts = data[0]
-        .filter((part: unknown[]) => part && part[0])
-        .map((part: unknown[]) => part[0] as string)
-        .join('');
-      
-      if (translatedParts && translatedParts.length > 0) {
-        return translatedParts;
+    const resp = await fetch(buildProxyUrl(text, src, dst));
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && typeof data.text === 'string' && data.text) {
+        browserCache.set(key, { text: data.text, ts: Date.now() });
+        return data.text;
       }
     }
-    
-    return await tryLibreTranslate(textToTranslate);
-  } catch (error) {
-    console.error('Translation error:', error);
-    return await tryLibreTranslate(textToTranslate);
+  } catch {
+    // 继续走 fallback
+  }
+
+  // 2. fallback：直接调用公共翻译 API（可能遇到 CORS，失败返回 null）
+  try {
+    const api = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(src)}&tl=${encodeURIComponent(dst)}&dt=t&q=${encodeURIComponent(text)}`;
+    const resp = await fetch(api);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const parts: string[] = Array.isArray(data?.[0])
+      ? data[0]
+          .filter((p: unknown[]) => Array.isArray(p) && typeof p[0] === 'string')
+          .map((p: unknown[]) => p[0] as string)
+      : [];
+    const translated = parts.join('') || null;
+    if (translated) browserCache.set(key, { text: translated, ts: Date.now() });
+    return translated;
+  } catch {
+    return null;
   }
 }
 
 /**
- * Fallback: Try LibreTranslate instances
- */
-async function tryLibreTranslate(text: string): Promise<string | null> {
-  for (const instance of LIBRE_INSTANCES) {
-    try {
-      const response = await fetch(`${instance}/translate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          q: text,
-          source: 'ja',
-          target: 'zh',
-          format: 'text',
-        }),
-      });
-      
-      if (!response.ok) continue;
-      
-      const data = await response.json();
-      if (data.translatedText) {
-        return data.translatedText;
-      }
-    } catch {
-      continue;
-    }
-  }
-  
-  return null;
-}
-
-/**
- * Check if a translation is just a placeholder (vocabulary list format)
- * @param translation The translation string to check
- * @returns true if it's a placeholder, false if it's actual translation
+ * 判断一段翻译是不是占位符（未翻译/模板化文本）
+ * 用于阅读页：如果文章自带翻译是占位文本，则走在线翻译
  */
 export function isPlaceholderTranslation(translation: string): boolean {
   if (!translation) return true;
-  
-  // Placeholders contain patterns like "本文包含了以下重点词汇" or "请查阅下方词汇表"
-  const placeholderPatterns = [
+  const patterns = [
     '本文包含了以下重点词汇',
     '请查阅下方词汇表',
     '重点词汇及其中文释义',
+    'TODO',
   ];
-  
-  // If it contains any placeholder pattern, treat it as placeholder
-  for (const pattern of placeholderPatterns) {
-    if (translation.includes(pattern)) {
-      return true;
-    }
-  }
-  
-  return false;
+  return patterns.some((p) => translation.includes(p));
 }

@@ -7,6 +7,7 @@ import FuriganaText from '../components/FuriganaText';
 import SelectionPopup from '../components/SelectionPopup';
 import { buildMeaning } from '../utils/translations';
 import { translateToChinese, isPlaceholderTranslation } from '../services/translate-service';
+import { useLearningProgress, markArticleRead } from '../hooks/useLearningProgress';
 
 // 统一文章类型
 type UnifiedArticle = Article & { category?: string; level?: string };
@@ -47,6 +48,9 @@ export default function ReadingPage() {
   const [translationError, setTranslationError] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('全部');
   const [sourceFilter, setSourceFilter] = useState<'all' | 'matcha' | 'original'>('all');
+
+  const { state } = useLearningProgress();
+  const readArticleSet = useMemo(() => new Set(state.articlesRead), [state.articlesRead]);
 
   // 合并所有文章
   const allArticles = useMemo(() => {
@@ -94,6 +98,7 @@ export default function ReadingPage() {
     setShowTranslation(false);
     setTranslatedText(null);
     setTranslationError(null);
+    markArticleRead(article.id); // 记录已读
   };
 
   const handleBack = () => {
@@ -151,8 +156,12 @@ export default function ReadingPage() {
         <h2 className="text-3xl font-bold text-ink font-display mb-2">
           読解練習
         </h2>
-        <p className="text-ink-light font-sans">
+        <p className="text-ink-light font-sans mb-2">
           精选文章 + MATCHA简易日语，覆盖N5~N1各级别，支持译文对照与重点词汇学习
+        </p>
+        <p className="text-xs text-ink-muted font-sans">
+          已读 <span className="text-primary font-bold">{readArticleSet.size}</span> /{' '}
+          {allArticles.length} 篇 · 选中文章中的日语文字即可查询释义并记录学习
         </p>
       </div>
 
@@ -369,45 +378,55 @@ export default function ReadingPage() {
           </div>
 
           <div className="space-y-4">
-            {displayedArticles.map((article) => (
-              <button
-                key={article.id}
-                onClick={() => handleArticleClick(article)}
-                className="w-full text-left bg-white rounded-xl border border-border p-5 hover:shadow-md hover:border-primary-soft/30 transition-all duration-200 group"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-ink font-serif group-hover:text-primary transition-colors">
-                      {article.title}
-                    </h3>
-                    <div className="flex items-center gap-3 mt-2 flex-wrap">
-                      <span className="px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
-                        {article.source}
-                      </span>
-                      {article.category && (
-                        <span className="px-2 py-0.5 bg-accent-soft text-accent text-xs rounded font-sans">
-                          {article.category}
+            {displayedArticles.map((article) => {
+              const hasRead = readArticleSet.has(article.id);
+              return (
+                <button
+                  key={article.id}
+                  onClick={() => handleArticleClick(article)}
+                  className="w-full text-left bg-white rounded-xl border border-border p-5 hover:shadow-md hover:border-primary-soft/30 transition-all duration-200 group"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2">
+                        <h3 className={`text-lg font-bold font-serif group-hover:text-primary transition-colors ${hasRead ? 'text-ink-light' : 'text-ink'}`}>
+                          {article.title}
+                        </h3>
+                        {hasRead && (
+                          <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-ink-muted/10 text-ink-muted font-sans">
+                            ✓ 已读
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-2 flex-wrap">
+                        <span className="px-2 py-0.5 bg-primary-soft text-primary text-xs rounded font-sans">
+                          {article.source}
                         </span>
-                      )}
-                      {article.level && (
-                        <span className="px-2 py-0.5 bg-gold-soft text-gold text-xs rounded font-sans">
-                          {article.level}
+                        {article.category && (
+                          <span className="px-2 py-0.5 bg-accent-soft text-accent text-xs rounded font-sans">
+                            {article.category}
+                          </span>
+                        )}
+                        {article.level && (
+                          <span className="px-2 py-0.5 bg-gold-soft text-gold text-xs rounded font-sans">
+                            {article.level}
+                          </span>
+                        )}
+                        <span className="text-xs text-ink-muted font-sans">
+                          {article.date}
                         </span>
-                      )}
-                      <span className="text-xs text-ink-muted font-sans">
-                        {article.date}
-                      </span>
+                      </div>
+                      <p className="text-sm text-ink-light font-sans mt-3 line-clamp-2">
+                        {article.content}
+                      </p>
                     </div>
-                    <p className="text-sm text-ink-light font-sans mt-3 line-clamp-2">
-                      {article.content}
-                    </p>
+                    <span className="text-ink-muted group-hover:translate-x-1 transition-transform text-lg mt-2 shrink-0">
+                      →
+                    </span>
                   </div>
-                  <span className="text-ink-muted group-hover:translate-x-1 transition-transform text-lg mt-2 shrink-0">
-                    →
-                  </span>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
 
           {displayedArticles.length === 0 && (
