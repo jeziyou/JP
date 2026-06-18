@@ -113,6 +113,83 @@ function emit(newState: LearningState) {
   listeners.forEach((l) => l(newState));
 }
 
+// ── 每日学习目标（Duolingo 核心机制）───────────────────────
+const DAILY_GOAL_KEY = 'jp-daily-goal-v1';
+const HEATMAP_KEY = 'jp-heatmap-v1';
+const DAILY_GOAL_DEFAULT = 20; // 默认每日目标：20词
+
+export function getDailyGoal(): number {
+  try {
+    return parseInt(localStorage.getItem(DAILY_GOAL_KEY) || String(DAILY_GOAL_DEFAULT), 10);
+  } catch {
+    return DAILY_GOAL_DEFAULT;
+  }
+}
+
+export function setDailyGoal(n: number) {
+  try {
+    localStorage.setItem(DAILY_GOAL_KEY, String(Math.max(5, Math.min(200, n))));
+  } catch {
+    // ignore
+  }
+}
+
+/** 获取今日已学单词数 */
+export function getTodayStudyCount(): number {
+  const state = getCurrentLearningState();
+  const today = todayStr();
+  // 统计今日有 lastSeenAt 的词（每词只计一次）
+  const seenToday = Object.values(state.words).filter(
+    (w) => {
+      const d = new Date(w.lastSeenAt);
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      return dateStr === today;
+    },
+  );
+  return seenToday.length;
+}
+
+/** 加载学习热力图（最近90天，每天学习词数）*/
+export function getHeatmapData(): { date: string; count: number }[] {
+  const STORAGE_KEY = HEATMAP_KEY;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const data: Record<string, number> = raw ? JSON.parse(raw) : {};
+    const today = todayStr();
+    const result: { date: string; count: number }[] = [];
+
+    // 生成最近90天
+    for (let i = 89; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      result.push({ date: dateStr, count: data[dateStr] || 0 });
+    }
+    return result;
+  } catch {
+    return [];
+  }
+}
+
+/** 追加今日学习计数（每次 recordSeenWord 时调用）*/
+export function bumpHeatmap() {
+  const today = todayStr();
+  try {
+    const raw = localStorage.getItem(HEATMAP_KEY);
+    const data: Record<string, number> = raw ? JSON.parse(raw) : {};
+    data[today] = (data[today] || 0) + 1;
+    // 保留最近180天
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 180);
+    for (const k of Object.keys(data)) {
+      if (k < cutoff.toISOString().slice(0, 10)) delete data[k];
+    }
+    localStorage.setItem(HEATMAP_KEY, JSON.stringify(data));
+  } catch {
+    // ignore
+  }
+}
+
 /** 记录用户看过某个单词（翻卡、划词、点击详情都会调用） */
 export function recordSeenWord(meta: {
   word: string;
@@ -122,6 +199,11 @@ export function recordSeenWord(meta: {
   if (!meta.word) return;
   const now = Date.now();
   const existing = globalState.words[meta.word];
+
+  // 同一分钟内同一词只计一次（防止重复触发）
+  const lastSeenMinute = Math.floor(now / 60000);
+  if (existing && Math.floor(existing.lastSeenAt / 60000) === lastSeenMinute) return;
+
   const next: WordRecord = existing
     ? { ...existing, lastSeenAt: now, seenCount: existing.seenCount + 1 }
     : {
@@ -134,6 +216,7 @@ export function recordSeenWord(meta: {
         seenCount: 1,
         favoritedAt: 0,
       };
+  bumpHeatmap(); // 更新热力图
   emit(bumpStreak({ ...globalState, words: { ...globalState.words, [meta.word]: next } }));
 }
 

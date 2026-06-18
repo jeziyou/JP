@@ -6,6 +6,7 @@ const navItems = [
   { to: '/vocabulary', label: '単語', labelCn: '单词', icon: '単' },
   { to: '/grammar', label: '文法', labelCn: '语法', icon: '文' },
   { to: '/reading', label: '読解', labelCn: '阅读', icon: '読' },
+  { to: '/test', label: '词汇练习', labelCn: 'Practice', icon: '🏆', highlight: true },
 ];
 
 export default function Sidebar() {
@@ -30,6 +31,8 @@ export default function Sidebar() {
               `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive
                   ? 'bg-primary text-white shadow-sm'
+                  : item.highlight
+                  ? 'text-gold-dark hover:bg-gold-soft/20 hover:text-gold-dark'
                   : 'text-ink-light hover:bg-paper-dark hover:text-ink'
               }`
             }
